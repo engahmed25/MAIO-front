@@ -1,40 +1,18 @@
 import { FiInfo } from "react-icons/fi";
 import { MdOutlineVerified } from "react-icons/md";
 import DrImg from "./../../assets/DrInfoImgs/DrImg.png";
-import Spinner from "../../ui/Spinner";
-import { useDoctor } from "../Doctors/useDoctor";
 
-function DrInfo({ id }) {
-  const { isLoading, doctor, error } = useDoctor(id);
+const doctorInfo = {
+  img: DrImg,
+  name: "Dr Name",
+  speciality: "Dermatologist",
+  experience: "2",
+  about:
+    "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum eligendi distinctio exercitationem? Et illo deserunt sit incidunt atque cumque libero similique aut, adipisci eaque dolorum veritatis doloribus nostrum neque blanditiis? Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum voluptatem enim maxime beatae cumque ex?",
+  fee: 50,
+};
 
-  console.log("Raw Doctor Response:", doctor);
-  console.log("Doctor ID being fetched:", id);
-
-  if (isLoading) return <Spinner />;
-  if (error) {
-    console.error("Error fetching doctor:", error);
-    return (
-      <div className="text-red-500 p-4">Error loading doctor information</div>
-    );
-  }
-  if (!doctor) return <div className="text-gray-500 p-4">Doctor not found</div>;
-
-  // Handle different possible response structures
-  const doctorData = doctor.data?.doctor || doctor.data || doctor;
-  const basUrl = import.meta.env.VITE_BACKEND_URL;
-
-  const doctorInfo = {
-    img: doctorData.profilePicture
-      ? `${basUrl}/${doctorData.profilePicture}`
-      : DrImg,
-    name:
-      `${doctorData.firstName || ""} ${doctorData.lastName || ""}`.trim() ||
-      "Dr Name",
-    speciality: doctorData.specialization || "Dermatologist",
-    experience: doctorData.yearsOfExperience || "2",
-    about: doctorData.bio || "No bio available",
-    fee: doctorData.ratePerSession || 50,
-  };
+function DrInfo() {
   return (
     <section className="flex flex-col md:flex-row gap-6 m-4 bg-white p-6 rounded-(--main-radius) border border-gray-300">
       <div className="rounded-(--main-radius) overflow-hidden  shadow-[0px_5px_15px_rgba(0,0,0,0.35)]">

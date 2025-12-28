@@ -1,28 +1,24 @@
 import { Link } from "react-router-dom";
 
-function DoctorCard({ doctor }) {
-  const {
-    fullName,
-    bio,
-    specialization,
-    ratePerSession,
-    status,
-    profilePicture,
-    _id,
-  } = doctor;
-
-  const isApproved = status?.toLowerCase() === "approved";
-
-  const basUrl = import.meta.env.VITE_BACKEND_URL;
+function DoctorCard({
+  name,
+  description,
+  specialization,
+  price,
+  status,
+  image,
+  id,
+}) {
+  const isAvailable = status?.toLowerCase() === "available";
 
   return (
-    <Link to={`/doctor/${_id}`} className="block">
+    <Link to={`/doctor/${id}`} className="block">
       <div className="cursor-pointer hover:scale-105 transition-all duration-300 rounded-[var(--main-radius)] border-[var(--main-color)] border-[1px] p-4 bg-white shadow-sm w-full flex flex-col gap-3">
         {/* Top Section - Image */}
         <div className="w-full h-64 overflow-hidden">
           <img
-            src={`${basUrl}/${profilePicture}`}
-            alt={fullName}
+            src={image}
+            alt={name}
             className="w-full h-full rounded-[var(--main-radius)] object-cover"
           />
         </div>
@@ -31,30 +27,30 @@ function DoctorCard({ doctor }) {
         <div className="flex items-center gap-2">
           <div
             className={`w-2 h-2 rounded-full ${
-              isApproved ? "bg-green-500" : "bg-gray-500"
+              isAvailable ? "bg-green-500" : "bg-gray-500"
             }`}
           ></div>
           <span
-            className={`text-sm capitalize ${
-              isApproved ? "text-green-600 font-medium" : "text-gray-500"
+            className={`text-sm ${
+              isAvailable ? "text-green-600" : "text-gray-500"
             }`}
           >
-            {status || "Pending"}
+            {status || "Offline"}
           </span>
         </div>
 
         {/* Text Section */}
         <div className="flex flex-col gap-2">
           {/* Doctor Name */}
-          <h3 className="text-lg font-bold">{fullName}</h3>
+          <h3 className="text-lg font-bold">{name}</h3>
 
           {/* Description */}
-          <p className="text-sm text-gray-500">{bio}</p>
+          <p className="text-sm text-gray-500">{description}</p>
 
           {/* Specialization and Price Row */}
           <div className="flex items-center justify-between text-sm font-medium">
             <span>{specialization}</span>
-            <span>{ratePerSession} EGP</span>
+            <span>{price}</span>
           </div>
         </div>
       </div>

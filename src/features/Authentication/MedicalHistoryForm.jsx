@@ -5,9 +5,6 @@ import Button from "../../ui/Button";
 import Select from "./Select";
 import Illnesses from "../../ui/Illnesses";
 import { useNavigate } from "react-router-dom";
-import { usePatientRegister } from "../../Context/PatientRegisterContext";
-import { useSignUpPatient } from "./useSignUpPatient";
-import { toast } from "react-hot-toast";
 
 const illnesses = [
   "Diabetes",
@@ -19,71 +16,26 @@ const illnesses = [
   "Other",
 ];
 function MedicalHistoryForm({ onNext }) {
-  const { updatePatientFormData, patientFormData } = usePatientRegister();
-  const { signUpAsync: patientRegister, isLoading } = useSignUpPatient();
-
   const {
     register,
     handleSubmit,
     watch,
     getValues,
     formState: { errors, isSubmitting },
-  } = useForm({
-    defaultValues: patientFormData.step2,
-  });
+  } = useForm();
 
   const navigate = useNavigate();
   const selectedIllnesses = watch("illnesses");
 
-  async function onSubmit(data) {
-    updatePatientFormData("step2", data);
-    // Get the picture from step1 data
-    const step1Data = patientFormData.step1;
-
-    const formDataToSend = new FormData();
-
-    // Handle the picture specifically (accept File or FileList/array)
-    if (step1Data.profilePicture) {
-      const pictureFile =
-        step1Data.profilePicture[0] &&
-        !(step1Data.profilePicture instanceof File)
-          ? step1Data.profilePicture[0]
-          : step1Data.profilePicture;
-      if (pictureFile) formDataToSend.append("profilePicture", pictureFile);
-    }
-
-    // Add all other step1 fields (excluding picture to avoid duplication)
-    for (const key in step1Data) {
-      if (key !== "picture") {
-        formDataToSend.append(key, step1Data[key]);
-      }
-    }
-
-    // Add all step2 fields
-    for (const key in data) {
-      if (Array.isArray(data[key])) {
-        data[key].forEach((item) => {
-          formDataToSend.append(key, item);
-        });
-      } else {
-        formDataToSend.append(key, data[key]);
-      }
-    }
-    // Debug: Log FormData contents
-    console.log("=== FormData Contents ===");
-    for (let [key, value] of formDataToSend.entries()) {
-      console.log(key, value);
-    }
+  const onSubmit = async (data) => {
     try {
-      const res = await patientRegister(formDataToSend);
-      console.log("Patient registered:", res);
-      // Only navigate on successful registration
+      console.log("Register data:", data);
+      // TODO: integrate with auth API (e.g., call register service)
       navigate("/");
-    } catch (error) {
-      console.error("Registration failed:", error);
-      // Don't navigate on error - stay on the form
+    } catch (err) {
+      console.error(err);
     }
-  }
+  };
 
   return (
     <div className="w-full h-[100vh] flex items-center justify-center flex-col">

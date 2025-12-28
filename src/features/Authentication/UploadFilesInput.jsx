@@ -76,7 +76,7 @@ function UploadFilesInput({
 
       <div
         {...getRootProps()}
-        className={`border-2 h-40 flex items-center justify-center 
+        className={`border-2 h-[160px] flex items-center justify-center 
           ${borderStyle} ${borderClass} rounded-md p-6 text-center cursor-pointer 
           hover:bg-gray-100 transition w-full`}
       >
