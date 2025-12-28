@@ -21,11 +21,14 @@ export default function DashboardLayout({ role = "patient" }) {
   ];
 
   const patientMenuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-    { icon: Calendar, label: "Appointments", path: "/appointments" },
-    { icon: MessageSquare, label: "Messages", path: "/messages" },
-    { icon: FileText, label: "Medical Records", path: "/records" },
-    { icon: Settings, label: "Settings", path: "/settings" },
+    { icon: LayoutDashboard, label: "Dashboard", path: "/patient/dashboard" },
+    { icon: Calendar, label: "Upload Files", path: "/patient/upload-files" },
+    {
+      icon: FileText,
+      label: "Medical History",
+      path: "/patient/medical-history",
+    },
+    { icon: Settings, label: "Settings", path: "/patient/settings" },
   ];
 
   const menuItems = role === "doctor" ? doctorMenuItems : patientMenuItems;

@@ -38,34 +38,71 @@ const doctors = [
   },
 ];
 import DoctorCard from "./DoctorCard.jsx";
+import { useDoctors } from "../features/Doctors/useDoctors";
+import Spinner from "./Spinner.jsx";
 
-function DoctorList({ speciality, search }) {
-  const filteredDoctors = doctors.filter((doctor) => {
+function DoctorList({ speciality, search, urlSearchParams = {} }) {
+  // Build search params for API call
+  const apiSearchParams = {};
+
+  // If URL has search params, use them; otherwise use local filters
+  if (
+    urlSearchParams.q ||
+    urlSearchParams.specialization ||
+    urlSearchParams.location
+  ) {
+    if (urlSearchParams.q) apiSearchParams.q = urlSearchParams.q;
+    if (urlSearchParams.specialization)
+      apiSearchParams.specialization = urlSearchParams.specialization;
+    if (urlSearchParams.location)
+      apiSearchParams.location = urlSearchParams.location;
+    if (urlSearchParams.minPrice)
+      apiSearchParams.minPrice = urlSearchParams.minPrice;
+    if (urlSearchParams.maxPrice)
+      apiSearchParams.maxPrice = urlSearchParams.maxPrice;
+  }
+
+  const { isLoading, doctors, error } = useDoctors(
+    Object.keys(apiSearchParams).length > 0 ? apiSearchParams : undefined
+  );
+
+  console.log("DoctorList props - speciality:", doctors);
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  const data = doctors?.data;
+  const doctorsData = data?.doctors || [];
+  console.log("Doctors data:", doctorsData);
+
+  const filteredDoctors = doctorsData.filter((doctor) => {
     const matchesSpeciality =
       speciality === "All" || doctor.specialization === speciality;
     const matchesSearch = search
-      ? doctor.name.toLowerCase().includes(search.toLowerCase())
+      ? doctor.fullName.toLowerCase().includes(search.toLowerCase())
       : true;
     return matchesSpeciality && matchesSearch;
   });
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {filteredDoctors.length === 0 ? (
-        <p className="text-gray-500 text-center py-6">No doctors found.</p>
+        <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+          <div className="text-6xl mb-4">🔍</div>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">
+            No doctors found
+          </h3>
+          <p className="text-gray-500 max-w-md">
+            We couldn't find any doctors matching your search criteria. Try
+            adjusting your filters or search terms.
+          </p>
+        </div>
       ) : (
         filteredDoctors.map((doctor) => (
-          <DoctorCard
-            name={doctor.name}
-            description={doctor.description}
-            specialization={doctor.specialization}
-            price={doctor.price}
-            status={doctor.status}
-            image={doctor.image}
-            id={doctor.id}
-          />
+          <DoctorCard key={doctor._id} doctor={doctor} />
         ))
       )}
-      {/* Add more doctor cards as needed */}
     </div>
   );
 }

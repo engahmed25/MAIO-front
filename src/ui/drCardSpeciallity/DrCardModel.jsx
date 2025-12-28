@@ -1,8 +1,13 @@
+import { useNavigate } from "react-router-dom";
+
 function DrCardModel({ img, drSpeciallityTitle }) {
+  const navigate = useNavigate();
+
   const handleClick = () => {
     const searchBydrSpeciallityTitle = drSpeciallityTitle.toLowerCase();
-    alert(searchBydrSpeciallityTitle);
+    navigate(`/doctors/specialization/${searchBydrSpeciallityTitle}`);
   };
+
   return (
     <div
       onClick={handleClick}

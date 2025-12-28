@@ -1,13 +1,27 @@
 // For all doctor data 
 
 import axios from "axios";
+import axiosClient from "./axiosClient";
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
-const doctorsAPI = "/api/doctors/search";
 
-export async function getDoctors() {
+const doctorsAPI = `/api/doctors/search`;
+
+// Get all doctors or search with filters
+export async function getDoctors(searchParams = {}) {
     try {
-        const res = await axios.get(`${backendURL}${doctorsAPI}`,);
+        const params = new URLSearchParams();
+
+        if (searchParams.q) params.append('q', searchParams.q);
+        if (searchParams.specialization) params.append('specialization', searchParams.specialization);
+        if (searchParams.minPrice) params.append('minPrice', searchParams.minPrice);
+        if (searchParams.maxPrice) params.append('maxPrice', searchParams.maxPrice);
+        if (searchParams.location) params.append('location', searchParams.location);
+
+        const queryString = params.toString();
+        const url = queryString ? `${backendURL}${doctorsAPI}?${queryString}` : `${backendURL}${doctorsAPI}`;
+
+        const res = await axios.get(url);
         return res.data;
     } catch (error) {
         throw error;
@@ -25,13 +39,21 @@ export async function getDoctorsBySpecialization(specialization) {
     }
 }
 
-//Get Doctor By Id
-export async function getDoctorByID(id) {
+// Get doctor by ID
+export async function getDoctorById(id) {
     try {
-        const res = await axios.get(`${backendURL}/api/doctors/${id}`, {
-        });
+        const res = await axiosClient.get(`${backendURL}/api/doctors/${id}`);
         return res.data;
     } catch (error) {
         throw error;
     }
 }
+
+
+
+/*
+get all doctors
+get doctor by id
+get doctors by specialization
+get doctors by name
+*/

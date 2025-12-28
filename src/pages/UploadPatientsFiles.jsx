@@ -155,7 +155,11 @@ export default function UploadPatientsFiles() {
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
             <div>
               <p className="font-medium text-red-900">Upload Failed</p>
-              <p className="text-sm text-red-700">{uploadError}</p>
+              <p className="text-sm text-red-700">
+                {uploadError?.response?.data?.message ||
+                  uploadError?.message ||
+                  "Failed to upload files"}
+              </p>
             </div>
           </div>
         )}

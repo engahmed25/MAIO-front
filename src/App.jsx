@@ -28,6 +28,7 @@ import UploadPatientsFiles from "./pages/UploadPatientsFiles.jsx";
 import EmailConfirmation from "./pages/EmailConfirmation.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import DoctorsBySpecialization from "./pages/DoctorsBySpecialization.jsx";
 // import store from "./utils/authStore.js";
 // import * as authKit from "react-auth-kit";
 const queryClient = new QueryClient({
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: "/doctors",
         element: <AllDoctors />,
+      },
+      {
+        path: "/doctors/specialization/:specialization",
+        element: <DoctorsBySpecialization />,
       },
       {
         path: "/contactus",
