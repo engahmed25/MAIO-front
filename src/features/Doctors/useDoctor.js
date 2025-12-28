@@ -1,14 +1,14 @@
 // to get all doctors
 
 import { useQuery } from "@tanstack/react-query";
-import { getDoctorByID } from "../../services/apiDoctors";
+import { getDoctorById } from "../../services/apiDoctors";
 
 
 
 export function useDoctor(id) {
     const { isLoading, data: doctor, error } = useQuery({
         queryKey: ["doctor", id],
-        queryFn: () => getDoctorByID(id),
+        queryFn: () => getDoctorById(id),
     })
 
     return {

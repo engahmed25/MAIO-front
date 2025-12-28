@@ -1,11 +1,11 @@
 import { FiInfo } from "react-icons/fi";
 import { MdOutlineVerified } from "react-icons/md";
 import DrImg from "./../../assets/DrInfoImgs/DrImg.png";
-import { useDoctorById } from "../Doctors/useDoctorById";
 import Spinner from "../../ui/Spinner";
+import { useDoctor } from "../Doctors/useDoctor";
 
 function DrInfo({ id }) {
-  const { isLoading, doctor, error } = useDoctorById(id);
+  const { isLoading, doctor, error } = useDoctor(id);
 
   console.log("Raw Doctor Response:", doctor);
   console.log("Doctor ID being fetched:", id);
