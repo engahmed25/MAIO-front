@@ -1,9 +1,29 @@
 import React, { useState } from "react";
+import { useAuthUser, useIsAuthenticated } from "react-auth-kit";
+import toast from "react-hot-toast";
+import LoginModal from "../Authentication/LoginModal";
 import Button from "../../ui/Button";
 
 export default function BookingSlots({ id }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const isAuthenticated = useIsAuthenticated();
+  const authUser = useAuthUser();
+  const user = authUser()?.user;
+
+  function handleBooking() {
+    if (!isAuthenticated()) {
+      setIsModalOpen(true);
+      toast("Login to book an appointment", {
+        icon: "⚠️",
+      });
+    }
+  }
+
+  function closeModal() {
+    setIsModalOpen(false);
+  }
 
   const dates = [
     { day: "MON", date: 10 },
@@ -76,6 +96,7 @@ export default function BookingSlots({ id }) {
       </div>
 
       <Button
+        onClick={handleBooking}
         disabled={selectedTime === null || selectedDate === null}
         className={`w-[80%] md:w-[50%] py-4 !rounded-[20px] text-white font-semibold transition-all ${
           selectedTime === null || selectedDate === null
@@ -83,8 +104,13 @@ export default function BookingSlots({ id }) {
             : "!bg-(--main-lite-color) hover:!bg-(--main-color) "
         }`}
       >
-        Book Appointment
+        {isAuthenticated()
+          ? "Book Appointment"
+          : "You must be logged in to book"}
       </Button>
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
   );
 }

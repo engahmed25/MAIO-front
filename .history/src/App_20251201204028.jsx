@@ -11,8 +11,7 @@ import PatientRegisterForm from "./features/Authentication/PatientRegisterForm.j
 import PatientRegisterFormWizard from "./features/Authentication/PatientRegisterFormWizard.jsx";
 import ContactUs from "./pages/ContactUs.jsx";
 import DrInfo from "./features/Appointments/DrInfo.jsx";
-import { QueryClient } from "@tanstack/query-core";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AllDoctors from "./pages/AllDoctors.jsx";
 import PatientDashboard from "./pages/PatientDashboard.jsx";
 import { Toaster } from "react-hot-toast";

@@ -3,8 +3,11 @@ import Button from "../../ui/Button";
 import FormInput from "./FormInput";
 import { Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import { use } from "react";
+import { useLogin } from "./useLogin";
 
 function LoginForm() {
+  const { loginAsync, isLoading } = useLogin();
   const {
     register,
     handleSubmit,
@@ -13,7 +16,8 @@ function LoginForm() {
   const onSubmit = async (data) => {
     try {
       console.log("Register data:", data);
-      // TODO: integrate with auth API (e.g., call register service)
+      const res = await loginAsync(data); // Assume login is an imported function that handles login API call
+      console.log("Login successful:", res);
     } catch (err) {
       console.error(err);
     }

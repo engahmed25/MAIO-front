@@ -5,24 +5,24 @@ import Button from "../../ui/Button";
 import Select from "./Select";
 import UploadFilesInput from "./UploadFilesInput";
 import UploadPicture from "./UploadPicture";
+import { usePatientRegister } from "../../Context/PatientRegisterContext";
 function PatientRegisterForm({ onNext }) {
+  const { updatePatientFormData, patientFormData } = usePatientRegister();
   const {
     register,
     handleSubmit,
     watch,
     getValues,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm();
+  } = useForm({
+    defaultValues: patientFormData.step1,
+  });
 
-  const onSubmit = async (data) => {
-    try {
-      console.log("Register data:", data);
-      // TODO: integrate with auth API (e.g., call register service)
-      onNext();
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  function onSubmit(data) {
+    updatePatientFormData("step1", data);
+    onNext();
+  }
 
   return (
     <div className="w-full h-[100vh] flex items-center justify-center flex-col">
@@ -33,7 +33,11 @@ function PatientRegisterForm({ onNext }) {
         className="shadow-[0px_5px_15px_RGBA(0,0,0,0.35)] p-12 rounded-2xl h-[77%] overflow-auto w-[90%] md:w-auto"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <UploadPicture register={register} errors={errors} />
+        <UploadPicture
+          register={register}
+          errors={errors}
+          setValue={setValue}
+        />
         <FormRow>
           <FormInput
             label="First Name"

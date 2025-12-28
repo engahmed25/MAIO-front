@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 
 function UploadPicture({
-  onFileAccepted,
+  onFileAccepted = () => {}, // Add default empty function
   label = "Upload your profile picture",
   borderClass = "border-[var(--main-color)]",
   borderStyle = "border-dashed",
@@ -11,6 +11,7 @@ function UploadPicture({
   error,
   dropActiveText = "Drop the image here ...",
   dropInactiveText = "Upload Picture",
+  setValue,
 }) {
   const [preview, setPreview] = useState(null);
   const [localError, setLocalError] = useState("");
@@ -31,6 +32,7 @@ function UploadPicture({
       setPreview({ file, url });
 
       onFileAccepted(file);
+      if (setValue) setValue("profilePicture", file);
     },
   });
 
@@ -45,6 +47,7 @@ function UploadPicture({
     if (preview) URL.revokeObjectURL(preview.url);
     setPreview(null);
     onFileAccepted(null);
+    if (setValue) setValue("profilePicture", null);
   };
 
   return (

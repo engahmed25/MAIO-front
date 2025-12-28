@@ -5,27 +5,36 @@ import UploadFilesInput from "./UploadFilesInput";
 import UploadGroup from "./UploadGroup";
 import Button from "../../ui/Button";
 import UploadPicture from "./UploadPicture";
+import { useDoctorRegister } from "../../Context/DoctorRegisterContext";
 
 function DoctorUploadFilesForm({ onNext }) {
+  const { updateFormData, formData } = useDoctorRegister();
+
   const {
     register,
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-  } = useForm();
+  } = useForm({
+    defaultValues: formData.step2,
+  });
 
-  const onSubmit = async (data) => {
-    try {
-      console.log("Register data:", data);
-      // TODO: integrate with auth API (e.g., call register service)
-      onNext();
-    } catch (err) {
-      console.error(err);
-    }
+  const onSubmit = (data) => {
+    // try {
+    //   console.log("Register data:", data);
+    //   // TODO: integrate with auth API (e.g., call register service)
+    //   onNext();
+    // } catch (err) {
+    //   console.error(err);
+    // }
+
+    console.log("Form submitted:", data);
+    updateFormData("step2", data);
+    onNext();
   };
 
   return (
-    <div className="w-full h-[100vh] flex items-center justify-center flex-col  ">
+    <div className="w-full h-screen flex items-center justify-center flex-col  ">
       <h2 className="mb-5 flex  items-center justify-center font-bold text-3xl ">
         UPLOAD YOUR FILES 📁
       </h2>
@@ -33,7 +42,7 @@ function DoctorUploadFilesForm({ onNext }) {
         className="shadow-[0px_5px_15px_rgba(0,0,0,0.35)] p-12 rounded-2xl h-[77%] overflow-auto w-[90%] md:w-auto "
         onSubmit={handleSubmit(onSubmit)}
       >
-        <Controller
+        {/* <Controller
           name="profilePicture"
           control={control}
           rules={{
@@ -59,7 +68,37 @@ function DoctorUploadFilesForm({ onNext }) {
             //   dropInactiveText="Drag 'n' drop your Profile Picture here, or click to select"
             // />
 
-            <UploadPicture register={register} errors={errors} />
+            <UploadPicture
+              onFileAccepted={(file) => field.onChange(file)}
+              error={errors.profilePicture}
+              label="Upload your Profile Picture"
+              helperText="Supported: jpg, jpeg, png"
+              allowedTypes={["image/*"]}
+            />
+          )}
+        /> */}
+
+        <Controller
+          name="profilePicture"
+          control={control}
+          rules={{
+            required: "Profile Picture is required",
+            validate: (file) => {
+              if (!file) return "Please upload a file";
+              const allowed = ["image/jpeg", "image/png", "image/jpg"];
+              if (!allowed.includes(file.type))
+                return "Only JPG, JPEG, PNG allowed";
+              return true;
+            },
+          }}
+          render={({ field }) => (
+            <UploadPicture
+              onFileAccepted={(file) => field.onChange(file)}
+              error={errors.profilePicture}
+              label="Upload your Profile Picture"
+              helperText="Supported: jpg, jpeg, png"
+              allowedTypes={["image/*"]}
+            />
           )}
         />
         {/* Profile Picture & PhD Certificate */}

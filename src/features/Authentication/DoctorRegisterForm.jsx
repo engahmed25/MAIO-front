@@ -1,12 +1,12 @@
 import React from "react";
 import { Form, useForm } from "react-hook-form";
 import FormInput from "./FormInput";
-import Doctor from "./FormRow";
 import FormRow from "./FormRow";
 import Button from "../../ui/Button";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Select from "./Select";
 import { useSignup } from "./useSignUp";
+import { useDoctorRegister } from "../../Context/DoctorRegisterContext";
 const specializations = [
   "Cardiology",
   "Dermatology",
@@ -26,7 +26,11 @@ const specializations = [
   "Other",
 ];
 
+const genderOptions = ["male", "female", "other"];
+
 function DoctorRegisterForm({ onNext }) {
+  const { updateFormData, formData } = useDoctorRegister();
+
   const {
     register,
     handleSubmit,
@@ -34,26 +38,22 @@ function DoctorRegisterForm({ onNext }) {
     getValues,
     trigger,
     formState: { errors, isSubmitting },
-  } = useForm();
-
-  const { mutateAsync: signup, isLoading } = useSignup();
+  } = useForm({
+    defaultValues: formData.step1, //! this to pre-fill the form if the user goes back
+  });
 
   //! this watch comes from react hook form to watch the specialization field
   const selectedSpecialization = watch("specialization");
 
-  async function onSubmit(data) {
-    // try {
-    //   const res = await signup(data);
-    //   console.log("Doctor registered:", res);
-    //   onNext();
-    // } catch (error) {
-    //   console.error("Registration failed:", error);
-    // }
+  const selectedGender = watch("gender");
+
+  function onSubmit(data) {
+    updateFormData("step1", data);
     onNext();
   }
 
   return (
-    <div className="w-full h-[100vh] flex items-center justify-center flex-col">
+    <div className="w-full h-screen flex items-center justify-center flex-col">
       <h2 className="mb-5 flex  items-center justify-center font-bold text-3xl ">
         WELCOME DOCTOR 🥼
       </h2>
@@ -162,6 +162,15 @@ function DoctorRegisterForm({ onNext }) {
           />
         </FormRow>
         {/* we will make it combo box as a feature */}
+
+          <FormInput
+            label="Professional Bio (Optional)"
+            name="bio"
+            type="textarea"
+            placeholder="Tell us about your experience..."
+            register={register}
+            error={errors.bio}
+          />
         </FormRow>
         {/* Specialization Select */}
         <Select
@@ -169,6 +178,19 @@ function DoctorRegisterForm({ onNext }) {
           errors={errors}
           watch={watch}
           trigger={trigger}
+          DisableValue="Select Your Gender"
+          selectedGender={selectedGender}
+          label="Gender"
+          name="gender"
+          validation={{ required: "Gender is required" }}
+          options={genderOptions}
+        />
+        <Select
+          register={register}
+          errors={errors}
+          watch={watch}
+          trigger={trigger}
+          DisableValue="Select Your Specification"
           selectedSpecialization={selectedSpecialization}
           label="Specialization"
           name="specialization"
