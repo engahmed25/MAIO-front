@@ -1,0 +1,37 @@
+/* Global rules*/
+@import "tailwindcss";
+
+:root {
+  --main-color: #014ed5;
+  --main-lite-color: #014ed5d4;
+  --backGround-color: #d9d9d9;
+  --main-transition: 0.3s;
+  --main-radius: 10px;
+  --main-padding-top: 80px;
+  --main-padding-bottom: 80px;
+  --sec-color: #fafafa;
+}
+* {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: "Open Sans", sans-serif;
+}
+ul {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+}
+
+.ourContainer {
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-left: auto;
+  margin-right: auto;
+}

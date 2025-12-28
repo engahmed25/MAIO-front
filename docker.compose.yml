@@ -1,0 +1,26 @@
+version: "3.8"
+#
+# Docker Compose file for Medical App
+# Defines services, networks, and volumes
+#
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - NODE_ENV=development
+    command: npm start
+
+  db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

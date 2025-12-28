@@ -1,0 +1,75 @@
+[
+  {
+    "id": 1,
+    "name": "Dr. Richard James",
+    "description": "Experienced general physician with over 15 years of practice in comprehensive patient care",
+    "specialization": "General physician",
+    "price": "$150",
+    "status": "Available",
+    "image": "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop"
+  },
+  {
+    "id": 2,
+    "name": "Dr. Sarah Lee",
+    "description": "Board-certified dermatologist specializing in skin conditions and cosmetic procedures",
+    "specialization": "Dermatology",
+    "price": "$200",
+    "status": "Available",
+    "image": "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop"
+  },
+  {
+    "id": 3,
+    "name": "Dr. Mark Samir",
+    "description": "Renowned neurologist with expertise in treating complex neurological disorders",
+    "specialization": "Neurology",
+    "price": "$250",
+    "status": "Offline",
+    "image": "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop"
+  },
+  {
+    "id": 4,
+    "name": "Dr. Laila Ahmed",
+    "description": "Pediatric specialist dedicated to providing compassionate care for children",
+    "specialization": "Pediatrics",
+    "price": "$180",
+    "status": "Available",
+    "image": "https://images.unsplash.com/photo-1594824476968-48dfc2893b3e?w=400&h=400&fit=crop"
+  },
+  {
+    "id": 5,
+    "name": "Dr. John Doe",
+    "description": "Cardiologist with extensive experience in heart disease prevention and treatment",
+    "specialization": "Cardiology",
+    "price": "$300",
+    "status": "Available",
+    "image": "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop"
+  },
+  {
+    "id": 6,
+    "name": "Dr. Emily Chen",
+    "description": "Expert in orthopedic surgery and sports medicine rehabilitation",
+    "specialization": "Orthopedics",
+    "price": "$280",
+    "status": "Offline",
+    "image": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=400&fit=crop"
+  },
+  {
+    "id": 7,
+    "name": "Dr. Michael Brown",
+    "description": "Psychiatrist specializing in mental health and behavioral therapy",
+    "specialization": "Psychiatry",
+    "price": "$220",
+    "status": "Available",
+    "image": "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=400&fit=crop"
+  },
+  {
+    "id": 8,
+    "name": "Dr. Maria Garcia",
+    "description": "Gynecologist providing comprehensive women's health services",
+    "specialization": "Gynecology",
+    "price": "$190",
+    "status": "Available",
+    "image": "https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=400&h=400&fit=crop"
+  }
+]
+
