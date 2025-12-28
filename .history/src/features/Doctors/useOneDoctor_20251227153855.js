@@ -5,15 +5,15 @@ import { getDoctorByID } from "../../services/apiDoctors";
 
 
 
-export function useDoctor(id) {
+export function useOneDoctors() {
     const { isLoading, data: doctor, error } = useQuery({
-        queryKey: ["doctor", id],
-        queryFn: () => getDoctorByID(id),
+        queryKey: ["oneDoctor", ],
+        queryFn: getDoctorByID,
     })
 
     return {
         isLoading,
-        doctor,
+        oneDoctor,
         error,
     };
 }
