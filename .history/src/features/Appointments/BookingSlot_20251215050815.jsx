@@ -1,0 +1,82 @@
+import React, { useState } from 'react';
+import Button from "../../ui/Button";
+
+
+export default function BookingSlots() {
+  const [selectedDate, setSelectedDate] = useState(0);
+  const [selectedTime, setSelectedTime] = useState(null);
+
+  const dates = [
+    { day: 'MON', date: 10 },
+    { day: 'TUE', date: 11 },
+    { day: 'WED', date: 12 },
+    { day: 'THU', date: 13 },
+    { day: 'FRI', date: 14 },
+    { day: 'SAT', date: 15 },
+    { day: 'SUN', date: 16 }
+  ];
+
+  const times = [
+    '8:00 am', '8:30 am', '9:00 am', '9:30 am',
+    '10:00 am', '10:30 am', '11:00 am', '11:30 am'
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto p-8 bg-white">
+      <h2 className="text-2xl font-semibold text-gray-900 mb-6">Book an appointment</h2>
+      
+      {/* Date Selection */}
+      <div className="mb-8">
+        <h3 className="text-sm font-medium text-gray-700 mb-3">Select Date</h3>
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {dates.map((item, index) => (
+            <Button
+              key={index}
+              onClick={() => setSelectedDate(index)}
+              className={`flex flex-col items-center justify-center min-w-[72px] h-20 rounded-xl border-2 transition-all ${
+                selectedDate === index
+                ? '!border-[var(--main-color)] !bg-[var(--main-verylite-color)] !text-[var(--main-color)]'
+                  : ' !border-gray-200 hover:!border-gray-300 !text-[var(--head-desc-color)]'
+              }`}
+            >
+              <span className="text-xs font-medium uppercase">{item.day}</span>
+              <span className="text-2xl font-semibold mt-1">{item.date}</span>
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Time Selection */}
+      <div className="mb-8">
+        <h3 className="text-sm font-medium text-gray-700 mb-3">Select Time</h3>
+        <div className="grid grid-cols-4 gap-3">
+          {times.map((time, index) => (
+            <Button
+              key={index}
+              onClick={() => setSelectedTime(time)}
+              className={`py-3 px-4 rounded-lg border-2 text-sm font-medium transition-all ${
+                selectedTime === time
+                  ? '!border-[var(--main-color)] !bg-[var(--main-verylite-color)] !text-[var(--main-color)]'
+                  : '!border-gray-200 hover:!border-gray-300 !text-[var(--head-desc-color)]'
+              }`}
+            >
+              {time}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Book Button */}
+      <Button
+        disabled={selectedTime === null}
+        className={`w-full py-4 rounded-lg text-white font-semibold transition-all ${
+          selectedTime === null
+            ? '!bg-gray-300 cursor-not-allowed'
+            : '!bg-blue-600 !hover:bg-blue-700 active:scale-[0.99]'
+        }`}
+      >
+        Book Appointment
+      </Button>
+    </div>
+  );
+}
