@@ -50,21 +50,8 @@ export default function BookingSlots({ id }) {
     if (!availableDays?.data || !Array.isArray(availableDays.data)) {
       return false;
     }
-    
-    // Map 3-letter day abbreviations to full day names
-    const dayNameMap = {
-      "SUN": "sunday",
-      "MON": "monday",
-      "TUE": "tuesday",
-      "WED": "wednesday",
-      "THU": "thursday",
-      "FRI": "friday",
-      "SAT": "saturday"
-    };
-    
-    const fullDayName = dayNameMap[dayName];
     return availableDays.data.some(
-      (availableDay) => availableDay.toLowerCase() === fullDayName.toLowerCase()
+      (availableDay) => availableDay.toLowerCase() === dayName.toLowerCase()
     );
   };
 

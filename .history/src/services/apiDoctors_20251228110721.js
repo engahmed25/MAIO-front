@@ -59,16 +59,6 @@ export async function getDoctorAvailability(doctorId, date) {
     }
 }
 
-// Get available days for a specific doctor
-export async function getDoctorAvailableDays(doctorId) {
-    try {
-        const res = await axiosClient.get(`${backendURL}/api/doctors/${doctorId}/availableDays`);
-        return res.data;
-    } catch (error) {
-        throw error;
-    }
-}
-
 
 
 

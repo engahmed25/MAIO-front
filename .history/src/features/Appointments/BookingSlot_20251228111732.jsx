@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import LoginModal from "../Authentication/LoginModal";
 import Button from "../../ui/Button";
 import { useBookingDoctor } from "./useBookingDoctor";
-import { useAvailableDays } from "./useAvailableDays";
 import Spinner from "../../ui/Spinner";
 
 export default function BookingSlots({ id }) {
@@ -14,9 +13,6 @@ export default function BookingSlots({ id }) {
   const isAuthenticated = useIsAuthenticated();
   const authUser = useAuthUser();
   const user = authUser()?.user;
-
-  // Fetch available days for the doctor
-  const { isLoading: isLoadingAvailableDays, availableDays, error: availableDaysError } = useAvailableDays(id);
 
   // Generate dates for the next 7 days
   const dates = useMemo(() => {
@@ -44,29 +40,6 @@ export default function BookingSlots({ id }) {
 
     return generatedDates;
   }, []);
-
-  // Check if a day is available
-  const isDateAvailable = (dayName) => {
-    if (!availableDays?.data || !Array.isArray(availableDays.data)) {
-      return false;
-    }
-    
-    // Map 3-letter day abbreviations to full day names
-    const dayNameMap = {
-      "SUN": "sunday",
-      "MON": "monday",
-      "TUE": "tuesday",
-      "WED": "wednesday",
-      "THU": "thursday",
-      "FRI": "friday",
-      "SAT": "saturday"
-    };
-    
-    const fullDayName = dayNameMap[dayName];
-    return availableDays.data.some(
-      (availableDay) => availableDay.toLowerCase() === fullDayName.toLowerCase()
-    );
-  };
 
   // Fetch availability for selected date
   const selectedDate = selectedDateIndex !== null ? dates[selectedDateIndex] : null;
@@ -100,22 +73,6 @@ export default function BookingSlots({ id }) {
     setIsModalOpen(false);
   }
 
-  if (isLoadingAvailableDays) {
-    return (
-      <div className="max-w-4xl p-8 flex justify-center">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (availableDaysError) {
-    return (
-      <div className="max-w-4xl p-8">
-        <div className="text-red-500 p-4">Error loading available days. Please try again.</div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-4xl p-8 ">
       <h2 className="text-3xl font-semibold text-[var(--head-desc-color)] text-center mb-6">
@@ -128,31 +85,23 @@ export default function BookingSlots({ id }) {
           Select Date
         </h3>
         <div className="flex gap-3 flex-wrap pb-2">
-          {dates.map((item, index) => {
-            const dayAvailable = isDateAvailable(item.day);
-            return (
-              <Button
-                key={index}
-                onClick={() => {
-                  if (dayAvailable) {
-                    setSelectedDateIndex(index);
-                    setSelectedTime(null); // Reset selected time when date changes
-                  }
-                }}
-                disabled={!dayAvailable}
-                className={`flex flex-col items-center justify-center min-w-[55px] md:min-w-[70px] h-20 rounded-xl border-2 transition-all ${
-                  !dayAvailable
-                    ? "!bg-gray-100 !border-gray-300 !text-gray-400 cursor-not-allowed opacity-50"
-                    : selectedDateIndex === index
-                    ? "!border-[var(--main-color)] !bg-[var(--main-verylite-color)] !text-[var(--main-color)]"
-                    : "!bg-[var(--sec-color)] !border-gray-200 hover:!border-gray-400 !text-[var(--head-desc-color)]"
-                }`}
-              >
-                <span className="text-xs font-medium uppercase">{item.day}</span>
-                <span className="text-2xl font-semibold mt-1">{item.date}</span>
-              </Button>
-            );
-          })}
+          {dates.map((item, index) => (
+            <Button
+              key={index}
+              onClick={() => {
+                setSelectedDateIndex(index);
+                setSelectedTime(null); // Reset selected time when date changes
+              }}
+              className={`flex flex-col items-center justify-center min-w-[55px] md:min-w-[70px] h-20 rounded-xl border-2 transition-all ${
+                selectedDateIndex === index
+                  ? "!border-[var(--main-color)] !bg-[var(--main-verylite-color)] !text-[var(--main-color)]"
+                  : "!bg-[var(--sec-color)] !border-gray-200 hover:!border-gray-400 !text-[var(--head-desc-color)]"
+              }`}
+            >
+              <span className="text-xs font-medium uppercase">{item.day}</span>
+              <span className="text-2xl font-semibold mt-1">{item.date}</span>
+            </Button>
+          ))}
         </div>
       </div>
 
