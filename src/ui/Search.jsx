@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { FiMapPin, FiSearch, FiX } from "react-icons/fi";
 import { RiStethoscopeLine } from "react-icons/ri";
 
@@ -29,23 +28,14 @@ const tags = [
 const specialtyOptions = [
   "Cardiology",
   "Dermatology",
-  "Neurology",
   "Pediatrics",
-  "Psychiatry",
-  "Radiology",
-  "Surgery",
-  "Orthopedics",
-  "Gynecology",
-  "Oncology",
-  "Anesthesiology",
-  "Emergency Medicine",
+  "Telehealth",
   "Family Medicine",
-  "Internal Medicine",
-  "Ophthalmology",
+  "Radiology",
+  "Top Hospital",
 ];
 
 const Search = () => {
-  const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
     doctor: "",
     location: "",
@@ -82,15 +72,19 @@ const Search = () => {
   );
 
   const handleSearch = () => {
-    const params = new URLSearchParams();
+    const blob = new Blob([JSON.stringify(requestPayload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "search-request.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
 
-    if (formValues.doctor.trim()) params.append("q", formValues.doctor.trim());
-    if (formValues.specialty)
-      params.append("specialization", formValues.specialty);
-    if (formValues.location.trim())
-      params.append("location", formValues.location.trim());
-
-    navigate(`/doctors?${params.toString()}`);
+    console.info("Search payload ready for API:", requestPayload);
   };
 
   return (

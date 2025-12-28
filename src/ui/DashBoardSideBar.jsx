@@ -7,7 +7,7 @@ import {
   Settings,
   User,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // DashBoardSideBar Component
 function DashBoardSideBar({
@@ -19,13 +19,13 @@ function DashBoardSideBar({
 
   const navigate = useNavigate();
 
-  // const menuItems = [
-  //   { icon: LayoutDashboard, label: "Dashboard", path: "/doctor/dashboard" },
-  //   { icon: Users, label: "Patients", path: "/doctor/patientList" },
-  //   { icon: Calendar, label: "Calendar", path: "/doctor/calendar" },
-  //   { icon: MessageSquare, label: "Messages", path: "/doctor/messages" },
-  //   { icon: Settings, label: "Settings", path: "/doctor/settings" },
-  // ];
+  //   const menuItems = [
+  //     { icon: LayoutDashboard, label: "Dashboard", path: "/doctor/dashboard" },
+  //     { icon: Users, label: "Patients", path: "/doctor/patientList" },
+  //     { icon: Calendar, label: "Calendar", path: "/doctor/calendar" },
+  //     { icon: MessageSquare, label: "Messages", path: "/doctor/messages" },
+  //     { icon: Settings, label: "Settings", path: "/doctor/settings" },
+  //   ];
 
   return (
     <div
@@ -42,17 +42,15 @@ function DashBoardSideBar({
         }`}
       >
         <div className={`flex items-center gap-3 `}>
-          <Link to={"/"}>
-            <img src="/logo.png" alt="Logo" className="w-8 h-8" />
-            <div>
-              {isOpen && (
-                <>
-                  <h1 className="text-lg font-bold text-gray-900">MAIO</h1>
-                  <p className="text-sm text-gray-500">Doctor's Portal</p>
-                </>
-              )}
-            </div>
-          </Link>
+          <img src="/logo.png" alt="Logo" className="w-8 h-8" />
+          <div>
+            {isOpen && (
+              <>
+                <h1 className="text-lg font-bold text-gray-900">MAIO</h1>
+                <p className="text-sm text-gray-500">Doctor's Portal</p>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
