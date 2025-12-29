@@ -1,30 +1,23 @@
 import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuthUser, useIsAuthenticated } from "react-auth-kit";
 import toast from "react-hot-toast";
 import LoginModal from "../Authentication/LoginModal";
 import Button from "../../ui/Button";
 import { useBookingDoctor } from "./useBookingDoctor";
 import { useAvailableDays } from "./useAvailableDays";
-import { useCreateReservation } from "./useCreateReservation";
+import { createReservation } from "../../services/apiDoctors";
 import Spinner from "../../ui/Spinner";
 
 export default function BookingSlots({ id }) {
-  const navigate = useNavigate();
   const [selectedDateIndex, setSelectedDateIndex] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBookingSuccess, setIsBookingSuccess] = useState(false);
-  const [bookedData, setBookedData] = useState(null);
   const isAuthenticated = useIsAuthenticated();
   const authUser = useAuthUser();
   const user = authUser()?.user;
 
   // Fetch available days for the doctor
   const { isLoading: isLoadingAvailableDays, availableDays, error: availableDaysError } = useAvailableDays(id);
-
-  // Use create reservation mutation
-  const { isPending: isSubmitting, mutate: submitReservation, error: reservationError } = useCreateReservation();
 
   // Generate dates for the next 7 days
   const dates = useMemo(() => {
@@ -101,41 +94,6 @@ export default function BookingSlots({ id }) {
       toast("Login to book an appointment", {
         icon: "⚠️",
       });
-      return;
-    }
-
-    // Submit booking to backend
-    if (selectedDateIndex !== null && selectedTime) {
-      const selectedDate = dates[selectedDateIndex];
-      submitReservation(
-        {
-          doctorId: id,
-          date: selectedDate.fullDate,
-          startTime: selectedTime.startTime,
-          endTime: selectedTime.endTime,
-        },
-        {
-          onSuccess: (response) => {
-            if (response.success || response.data) {
-              toast.success("Appointment booked successfully!");
-              // Store booked data and show success message
-              setBookedData({
-                date: selectedDate.fullDate,
-                day: selectedDate.day,
-                dayDate: selectedDate.date,
-                time: selectedTime.displayTime,
-              });
-              setIsBookingSuccess(true);
-            } else {
-              toast.error("Failed to book appointment. Please try again.");
-            }
-          },
-          onError: (error) => {
-            console.error("Booking error:", error);
-            toast.error(error?.response?.data?.message || "An error occurred while booking. Please try again.");
-          },
-        }
-      );
     }
   }
 
@@ -155,44 +113,6 @@ export default function BookingSlots({ id }) {
     return (
       <div className="max-w-4xl p-8">
         <div className="text-red-500 p-4">Error loading available days. Please try again.</div>
-      </div>
-    );
-  }
-
-  // Show success message after successful booking
-  if (isBookingSuccess && bookedData) {
-    return (
-      <div className="max-w-4xl p-8">
-        <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-8 text-center">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold text-green-700 mb-2">
-              ✓ Appointment Reserved Successfully!
-            </h2>
-            <p className="text-gray-600 text-lg">Your appointment has been confirmed</p>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 mb-6 border border-green-200">
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <p className="text-sm text-gray-500 font-semibold">Date</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  {bookedData.day}, {bookedData.dayDate}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-semibold">Time</p>
-                <p className="text-2xl font-bold text-gray-800">{bookedData.time}</p>
-              </div>
-            </div>
-          </div>
-
-          <Button
-            onClick={() => navigate("/PatientDashboard")}
-            className="w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold"
-          >
-            Go to Dashboard
-          </Button>
-        </div>
       </div>
     );
   }
@@ -282,14 +202,14 @@ export default function BookingSlots({ id }) {
 
       <Button
         onClick={handleBooking}
-        disabled={selectedTime === null || selectedDateIndex === null || isSubmitting}
+        disabled={selectedTime === null || selectedDateIndex === null}
         className={`w-[80%] md:w-[50%] py-4 !rounded-[20px] text-white font-semibold transition-all ${
-          selectedTime === null || selectedDateIndex === null || isSubmitting
+          selectedTime === null || selectedDateIndex === null
             ? "!bg-gray-300 cursor-not-allowed"
             : "!bg-[var(--main-lite-color)] hover:!bg-[var(--main-color)]"
         }`}
       >
-        {isSubmitting ? "Booking..." : isAuthenticated()
+        {isAuthenticated()
           ? "Book Appointment"
           : "You must be logged in to book"}
       </Button>

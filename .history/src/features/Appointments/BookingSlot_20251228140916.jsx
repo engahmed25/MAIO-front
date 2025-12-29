@@ -187,7 +187,7 @@ export default function BookingSlots({ id }) {
           </div>
 
           <Button
-            onClick={() => navigate("/PatientDashboard")}
+            onClick={() => navigate("/patient-dashboard")}
             className="w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold"
           >
             Go to Dashboard

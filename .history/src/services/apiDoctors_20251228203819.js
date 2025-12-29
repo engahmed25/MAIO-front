@@ -18,7 +18,6 @@ export async function getDoctors(searchParams = {}) {
 
         const queryString = params.toString();
         const url = queryString ? `${backendURL}${doctorsAPI}?${queryString}` : `${backendURL}${doctorsAPI}`;
-
         const res = await axios.get(url);
         return res.data;
     } catch (error) {

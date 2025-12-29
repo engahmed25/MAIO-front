@@ -159,44 +159,6 @@ export default function BookingSlots({ id }) {
     );
   }
 
-  // Show success message after successful booking
-  if (isBookingSuccess && bookedData) {
-    return (
-      <div className="max-w-4xl p-8">
-        <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-8 text-center">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold text-green-700 mb-2">
-              ✓ Appointment Reserved Successfully!
-            </h2>
-            <p className="text-gray-600 text-lg">Your appointment has been confirmed</p>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 mb-6 border border-green-200">
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <p className="text-sm text-gray-500 font-semibold">Date</p>
-                <p className="text-2xl font-bold text-gray-800">
-                  {bookedData.day}, {bookedData.dayDate}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-semibold">Time</p>
-                <p className="text-2xl font-bold text-gray-800">{bookedData.time}</p>
-              </div>
-            </div>
-          </div>
-
-          <Button
-            onClick={() => navigate("/PatientDashboard")}
-            className="w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold"
-          >
-            Go to Dashboard
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-4xl p-8 ">
       <h2 className="text-3xl font-semibold text-[var(--head-desc-color)] text-center mb-6">

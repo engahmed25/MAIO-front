@@ -187,7 +187,7 @@ export default function BookingSlots({ id }) {
           </div>
 
           <Button
-            onClick={() => navigate("/PatientDashboard")}
+            onClick={() => navigate("/patient-dashboard")}
             className="w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold"
           >
             Go to Dashboard
@@ -196,8 +196,6 @@ export default function BookingSlots({ id }) {
       </div>
     );
   }
-
-  return (
     <div className="max-w-4xl p-8 ">
       <h2 className="text-3xl font-semibold text-[var(--head-desc-color)] text-center mb-6">
         Book an appointment

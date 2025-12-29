@@ -1,15 +1,16 @@
 // For all doctor data 
+
 import axios from "axios";
 import axiosClient from "./axiosClient";
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
+
 const doctorsAPI = `/api/doctors/search`;
 
 // Get all doctors or search with filters
 export async function getDoctors(searchParams = {}) {
     try {
         const params = new URLSearchParams();
-
         if (searchParams.q) params.append('q', searchParams.q);
         if (searchParams.specialization) params.append('specialization', searchParams.specialization);
         if (searchParams.minPrice) params.append('minPrice', searchParams.minPrice);

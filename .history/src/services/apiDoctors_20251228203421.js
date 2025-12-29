@@ -1,8 +1,10 @@
 // For all doctor data 
+
 import axios from "axios";
 import axiosClient from "./axiosClient";
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
+
 const doctorsAPI = `/api/doctors/search`;
 
 // Get all doctors or search with filters

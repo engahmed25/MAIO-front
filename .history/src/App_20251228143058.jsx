@@ -117,8 +117,8 @@ const router = createBrowserRouter([
     element: <DrInfo />,
   },
   {
-    path: "/PatientDashboard",
-    element: <PatientDashboard />
+  path: "/patient-dashboard",
+  element: <PatientDashboard />
   },
   {
     path: "/forgot-password",
