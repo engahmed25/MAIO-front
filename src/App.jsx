@@ -29,6 +29,11 @@ import EmailConfirmation from "./pages/EmailConfirmation.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import DoctorsBySpecialization from "./pages/DoctorsBySpecialization.jsx";
+
+import PaymentPage from "./pages/PaymentPage.jsx";
+import ConfirmAppointmentPage from "./pages/ConfirmAppointmentPage.jsx";
+import PaymentConfirmation from "./features/paymentMethods/PaymentConfirmation.jsx";
+
 // import store from "./utils/authStore.js";
 // import * as authKit from "react-auth-kit";
 const queryClient = new QueryClient({
@@ -163,6 +168,18 @@ const router = createBrowserRouter([
   {
     path: "/consulting-doctors",
     element: <ConsultingDoctors />,
+  },
+  {
+    path: "/patient/payment",
+    element: <PaymentPage />,
+  },
+  {
+    path: "/patient/payment/confirm-payment",
+    element: <PaymentConfirmation />,
+  },
+  {
+    path: "/confirmappointmentpage",
+    element: <ConfirmAppointmentPage />,
   },
 ]);
 
