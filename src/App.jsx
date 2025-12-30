@@ -29,6 +29,7 @@ import EmailConfirmation from "./pages/EmailConfirmation.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import DoctorsBySpecialization from "./pages/DoctorsBySpecialization.jsx";
+import PatientInfo from "./features/Patients/PatienInfo/PatientInfo.jsx";
 
 import PaymentPage from "./pages/PaymentPage.jsx";
 import ConfirmAppointmentPage from "./pages/ConfirmAppointmentPage.jsx";
@@ -168,6 +169,10 @@ const router = createBrowserRouter([
   {
     path: "/consulting-doctors",
     element: <ConsultingDoctors />,
+  },
+  {
+    path: "/patient/patientInfo",
+    element: <PatientInfo />,
   },
   {
     path: "/patient/payment",
