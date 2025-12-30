@@ -6,7 +6,7 @@ import { createReservation } from "../../services/apiDoctors";
 export function useCreateReservation() {
     const { isPending, mutate, error } = useMutation({
         mutationFn: ({ doctorId, date, startTime, endTime, reasonForVisit }) =>
-            createReservation(doctorId, date, startTime, endTime, reasonForVisit),
+            createReservation(doctorId, date, startTime, endTime),
     });
 
     return {

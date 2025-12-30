@@ -173,42 +173,6 @@ export default function BookingSlots({ id }) {
 
   // Show success message after successful booking
   if (isBookingSuccess && bookedData) {
-    // Handle checkout navigation with reservation details
-    const handleCheckout = () => {
-      if (isLoadingReservation) {
-        toast.loading("Loading appointment details...");
-        return;
-      }
-
-      if (reservationFetchError) {
-        toast.error("Failed to load appointment details. Please try again.");
-        return;
-      }
-
-      if (reservation?.reservation) {
-        const res = reservation.reservation;
-        const appointmentInfo = {
-          drName: `${res.doctorId.firstName} ${res.doctorId.lastName}`,
-          speciality: res.doctorId.specialization,
-          date: new Date(res.appointmentDate).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          }),
-          time: `${res.startTime} - ${res.endTime}`,
-          clinicName: "Clinic", // Backend doesn't provide clinic name, using default
-          clinicLocation: res.doctorId.clinicAddress,
-          price: res.amount,
-          appointmentCode: res.appointmentCode,
-          reservationId: res._id,
-        };
-
-        navigate("/patient/payment", {
-          state: appointmentInfo,
-        });
-      }
-    };
-
     return (
       <div className="max-w-4xl p-8">
         <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-8 text-center">
@@ -235,13 +199,10 @@ export default function BookingSlots({ id }) {
           </div>
 
           <Button
-            onClick={handleCheckout}
-            disabled={isLoadingReservation}
-            className={`w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold ${
-              isLoadingReservation ? "!bg-gray-400 cursor-not-allowed" : ""
-            }`}
+            onClick={() => navigate("/patient/payment")}
+            className="w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold"
           >
-            {isLoadingReservation ? "Loading..." : "Go to Checkout"}
+            Go to Checkout
           </Button>
         </div>
       </div>
