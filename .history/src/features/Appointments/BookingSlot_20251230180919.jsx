@@ -19,7 +19,6 @@ export default function BookingSlots({ id }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBookingSuccess, setIsBookingSuccess] = useState(false);
   const [bookedData, setBookedData] = useState(null);
-  const [reservationId, setReservationId] = useState(null);
   const isAuthenticated = useIsAuthenticated();
   const authUser = useAuthUser();
   const user = authUser()?.user;
@@ -29,9 +28,6 @@ export default function BookingSlots({ id }) {
 
   // Use create reservation mutation
   const { isPending: isSubmitting, mutate: submitReservation, error: reservationError } = useCreateReservation();
-
-  // Fetch reservation details when we have a reservation ID
-  const { isLoading: isLoadingReservation, reservation, error: reservationFetchError } = useGetReservation(reservationId);
 
   // Generate dates for the next 7 days
   const dates = useMemo(() => {
@@ -126,16 +122,12 @@ export default function BookingSlots({ id }) {
           onSuccess: (response) => {
             if (response.success || response.data) {
               toast.success("Appointment booked successfully!");
-              // Store reservation ID to fetch details later
-              const resId = response.data?._id || response.reservation?._id;
-              setReservationId(resId);
               // Store booked data and show success message
               setBookedData({
                 date: selectedDate.fullDate,
                 day: selectedDate.day,
                 dayDate: selectedDate.date,
                 time: selectedTime.displayTime,
-                reservationId: resId,
               });
               setIsBookingSuccess(true);
             } else {
@@ -173,42 +165,6 @@ export default function BookingSlots({ id }) {
 
   // Show success message after successful booking
   if (isBookingSuccess && bookedData) {
-    // Handle checkout navigation with reservation details
-    const handleCheckout = () => {
-      if (isLoadingReservation) {
-        toast.loading("Loading appointment details...");
-        return;
-      }
-
-      if (reservationFetchError) {
-        toast.error("Failed to load appointment details. Please try again.");
-        return;
-      }
-
-      if (reservation?.reservation) {
-        const res = reservation.reservation;
-        const appointmentInfo = {
-          drName: `${res.doctorId.firstName} ${res.doctorId.lastName}`,
-          speciality: res.doctorId.specialization,
-          date: new Date(res.appointmentDate).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          }),
-          time: `${res.startTime} - ${res.endTime}`,
-          clinicName: "Clinic", // Backend doesn't provide clinic name, using default
-          clinicLocation: res.doctorId.clinicAddress,
-          price: res.amount,
-          appointmentCode: res.appointmentCode,
-          reservationId: res._id,
-        };
-
-        navigate("/patient/payment", {
-          state: appointmentInfo,
-        });
-      }
-    };
-
     return (
       <div className="max-w-4xl p-8">
         <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-8 text-center">
@@ -235,13 +191,10 @@ export default function BookingSlots({ id }) {
           </div>
 
           <Button
-            onClick={handleCheckout}
-            disabled={isLoadingReservation}
-            className={`w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold ${
-              isLoadingReservation ? "!bg-gray-400 cursor-not-allowed" : ""
-            }`}
+            onClick={() => navigate("/patient/payment")}
+            className="w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold"
           >
-            {isLoadingReservation ? "Loading..." : "Go to Checkout"}
+            Go to Checkout
           </Button>
         </div>
       </div>

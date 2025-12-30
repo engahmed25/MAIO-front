@@ -12,7 +12,7 @@ const axiosClient = axios.create({
 // ✅ Helper function to get cookie value
 function getCookie(name) {
     const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
+    const parts = value.split(`; ${name}=);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
 }
@@ -25,7 +25,7 @@ axiosClient.interceptors.request.use(
 
         if (token) {
             // Add Bearer token to Authorization header
-            config.headers.Authorization = `Bearer ${token}`;
+            config.headers.Authorization = Bearer ${token};
         }
 
         return config;
