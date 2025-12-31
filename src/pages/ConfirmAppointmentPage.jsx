@@ -1,12 +1,34 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Check } from "lucide-react"; // Or use a custom SVG if you don't have lucide-react
 import AppointmentSummaryCard from "../features/paymentMethods/AppointmentSummaryCard";
 import PaymentStatusMessage from "../features/paymentMethods/PaymentStatusMessage";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-function ConfirmAppointmentPage({ payMethod = "debitCard" }) {
-  // const { state } = useLocation();
+function ConfirmAppointmentPage({ payMethod: payMethodProp = "debitCard", appointmentInfo }) {
+  const { state } = useLocation();
   const navigate = useNavigate();
+
+  const payMethod = state?.payMethod || payMethodProp || "debitCard";
+
+  const appointmentSummary = useMemo(() => {
+    if (appointmentInfo) return appointmentInfo;
+    if (state?.appointmentInfo) return state.appointmentInfo;
+    if (state?.confirmedAppointment) {
+      const appt = state.confirmedAppointment;
+      return {
+        drName: appt?.doctorId?.name || "Doctor",
+        speciality: appt?.doctorId?.specialization,
+        date: appt?.appointmentDate
+          ? new Date(appt.appointmentDate).toLocaleDateString()
+          : undefined,
+        time: appt?.startTime && appt?.endTime ? `${appt.startTime} - ${appt.endTime}` : undefined,
+        clinicName: appt?.doctorId?.clinicName,
+        clinicLocation: appt?.doctorId?.clinicAddress,
+        price: appt?.amount,
+      };
+    }
+    return null;
+  }, [appointmentInfo, state]);
 
   function onClick() {
     navigate("/");
@@ -25,17 +47,27 @@ function ConfirmAppointmentPage({ payMethod = "debitCard" }) {
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           Booking Confirmed
         </h2>
-        <AppointmentSummaryCard
-        // drName={appointmentInfo.drName}
-        // speciality={appointmentInfo.speciality}
-        // date={appointmentInfo.date}
-        // time={appointmentInfo.time}
-        // clinicName={appointmentInfo.clinicName}
-        // clinicLocation={appointmentInfo.clinicLocation}
-        // price={appointmentInfo.price}
-        />
+        {appointmentSummary ? (
+          <AppointmentSummaryCard
+            drName={appointmentSummary.drName}
+            speciality={appointmentSummary.speciality}
+            date={appointmentSummary.date}
+            time={appointmentSummary.time}
+            clinicName={appointmentSummary.clinicName}
+            clinicLocation={appointmentSummary.clinicLocation}
+            price={appointmentSummary.price}
+          />
+        ) : (
+          <p className="text-gray-500 text-sm mt-4">
+            Appointment details will appear once available.
+          </p>
+        )}
         <div className="w-full border-t border-gray-100 my-6"></div>
-        <PaymentStatusMessage payMethod={payMethod} />
+        <PaymentStatusMessage
+          payMethod={payMethod}
+          shouldCheckAppointments={state?.shouldCheckUpcoming}
+          appointmentId={state?.confirmedAppointment?._id}
+        />
         <button
           onClick={onClick}
           className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors"

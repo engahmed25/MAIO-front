@@ -7,15 +7,35 @@ import {
 } from "@stripe/react-stripe-js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useConfirmPaymentIntent } from "../features/paymentMethods/useConfirmPaymentIntent";
 
-function CardPaymentFormPage({ clientSecret }) {
+function CardPaymentFormPage({
+  clientSecret,
+  paymentIntentId,
+  reservationId,
+  appointmentData,
+}) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Add this hook
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
+
+  const {
+    confirmIntent,
+    isConfirming,
+    error: confirmError,
+  } = useConfirmPaymentIntent();
 
   const handlePayment = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
+
+    if (!reservationId) {
+      setErrorMessage("Missing reservation. Please restart checkout.");
+      return;
+    }
+
     if (!stripe || !elements) return;
 
     setLoading(true);
@@ -32,18 +52,36 @@ function CardPaymentFormPage({ clientSecret }) {
     );
 
     if (error) {
-      alert(error.message);
-    } else if (paymentIntent?.status === "succeeded") {
-      alert("Payment Successful!");
-      navigate(
-        "/confirmappointmentpage"
-        //   , {
-        //   state: {
-        //     payMethod: "debitCard",
-        //     // appointmentInfo,
-        //   },
-        // }
-      );
+      setErrorMessage(error.message || "Payment failed. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    if (paymentIntent?.status === "succeeded") {
+      try {
+        const confirmedAppointment = await confirmIntent({
+          reservationId,
+          paymentIntentId: paymentIntent?.id || paymentIntentId,
+        });
+
+        navigate("/confirmappointmentpage", {
+          state: {
+            payMethod: "debitCard",
+            appointmentInfo: appointmentData,
+            confirmedAppointment,
+            reservationId,
+            shouldCheckUpcoming: true,
+          },
+        });
+      } catch (err) {
+        setErrorMessage(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Payment succeeded, but booking confirmation failed."
+        );
+      }
+    } else {
+      setErrorMessage("Payment not completed. Please try again.");
     }
 
     setLoading(false);
@@ -109,14 +147,22 @@ function CardPaymentFormPage({ clientSecret }) {
 
           {/* Submit Button */}
           <button
-            disabled={!stripe || loading}
+            disabled={!stripe || loading || isConfirming}
             className={`w-full bg-blue-600 text-white p-3 sm:p-4 rounded-lg 
             hover:bg-blue-700 active:bg-blue-800 transition font-medium
-            ${loading && "bg-gray-400 cursor-not-allowed"}`}
+            ${(loading || isConfirming) && "bg-gray-400 cursor-not-allowed"}`}
           >
-            {loading ? "Processing…" : "Submit Payment"}
+            {loading || isConfirming ? "Processing…" : "Submit Payment"}
           </button>
         </form>
+
+        {(errorMessage || confirmError) && (
+          <p className="text-red-600 text-center mt-4 text-sm">
+            {errorMessage ||
+              confirmError?.response?.data?.message ||
+              confirmError?.message}
+          </p>
+        )}
 
         {/* Security Note */}
         <div className="mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">

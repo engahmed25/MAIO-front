@@ -42,7 +42,10 @@ function PaymentConfirmation() {
   if (payMethod === "cash") {
     return (
       <div className="p-4 rounded-xl border border-gray-200 bg-gray-50">
-        <ConfirmAppointmentPage payMethod={"cash"} />
+        <ConfirmAppointmentPage
+          payMethod={"cash"}
+          appointmentInfo={appointmentData}
+        />
       </div>
     );
   }
@@ -72,7 +75,7 @@ function PaymentConfirmation() {
             </div>
           ) : (
             <p className="text-gray-600 text-center py-4 animate-pulse">
-              Loading payment…
+              {isCreating ? "Creating payment..." : "Loading payment…"}
             </p>
           )}
         </div>
