@@ -4,22 +4,18 @@ import { useAuthUser, useIsAuthenticated } from "react-auth-kit";
 import toast from "react-hot-toast";
 import LoginModal from "../Authentication/LoginModal";
 import Button from "../../ui/Button";
-import FormInput from "../Authentication/FormInput";
 import { useBookingDoctor } from "./useBookingDoctor";
 import { useAvailableDays } from "./useAvailableDays";
 import { useCreateReservation } from "./useCreateReservation";
-import { useGetReservation } from "./useGetReservation";
 import Spinner from "../../ui/Spinner";
 
 export default function BookingSlots({ id }) {
   const navigate = useNavigate();
   const [selectedDateIndex, setSelectedDateIndex] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-  const [reasonForVisit, setReasonForVisit] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBookingSuccess, setIsBookingSuccess] = useState(false);
   const [bookedData, setBookedData] = useState(null);
-  const [reservationId, setReservationId] = useState(null);
   const isAuthenticated = useIsAuthenticated();
   const authUser = useAuthUser();
   const user = authUser()?.user;
@@ -29,9 +25,6 @@ export default function BookingSlots({ id }) {
 
   // Use create reservation mutation
   const { isPending: isSubmitting, mutate: submitReservation, error: reservationError } = useCreateReservation();
-
-  // Fetch reservation details when we have a reservation ID
-  const { isLoading: isLoadingReservation, reservation, error: reservationFetchError } = useGetReservation(reservationId);
 
   // Generate dates for the next 7 days
   const dates = useMemo(() => {
@@ -112,7 +105,7 @@ export default function BookingSlots({ id }) {
     }
 
     // Submit booking to backend
-    if (selectedDateIndex !== null && selectedTime && reasonForVisit.trim()) {
+    if (selectedDateIndex !== null && selectedTime) {
       const selectedDate = dates[selectedDateIndex];
       submitReservation(
         {
@@ -120,22 +113,17 @@ export default function BookingSlots({ id }) {
           date: selectedDate.fullDate,
           startTime: selectedTime.startTime,
           endTime: selectedTime.endTime,
-          reasonForVisit,
         },
         {
           onSuccess: (response) => {
             if (response.success || response.data) {
               toast.success("Appointment booked successfully!");
-              // Store reservation ID to fetch details later
-              const resId = response.data?._id || response.reservation?._id;
-              setReservationId(resId);
               // Store booked data and show success message
               setBookedData({
                 date: selectedDate.fullDate,
                 day: selectedDate.day,
                 dayDate: selectedDate.date,
                 time: selectedTime.displayTime,
-                reservationId: resId,
               });
               setIsBookingSuccess(true);
             } else {
@@ -173,42 +161,6 @@ export default function BookingSlots({ id }) {
 
   // Show success message after successful booking
   if (isBookingSuccess && bookedData) {
-    // Handle checkout navigation with reservation details
-    const handleCheckout = () => {
-      if (isLoadingReservation) {
-        toast.loading("Loading appointment details...");
-        return;
-      }
-
-      if (reservationFetchError) {
-        toast.error("Failed to load appointment details. Please try again.");
-        return;
-      }
-
-      if (reservation?.reservation) {
-        const res = reservation.reservation;
-        const appointmentInfo = {
-          drName: `${res.doctorId.firstName} ${res.doctorId.lastName}`,
-          speciality: res.doctorId.specialization,
-          date: new Date(res.appointmentDate).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          }),
-          time: `${res.startTime} - ${res.endTime}`,
-          clinicName: "Clinic", // Backend doesn't provide clinic name, using default
-          clinicLocation: res.doctorId.clinicAddress,
-          price: res.amount,
-          appointmentCode: res.appointmentCode,
-          reservationId: res._id,
-        };
-
-        navigate("/patient/payment", {
-          state: appointmentInfo,
-        });
-      }
-    };
-
     return (
       <div className="max-w-4xl p-8">
         <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-8 text-center">
@@ -235,13 +187,10 @@ export default function BookingSlots({ id }) {
           </div>
 
           <Button
-            onClick={handleCheckout}
-            disabled={isLoadingReservation}
-            className={`w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold ${
-              isLoadingReservation ? "!bg-gray-400 cursor-not-allowed" : ""
-            }`}
+            onClick={() => navigate("/PatientDashboard")}
+            className="w-full md:w-[50%] py-3 !rounded-[20px] text-white font-semibold"
           >
-            {isLoadingReservation ? "Loading..." : "Go to Checkout"}
+            Go to Dashboard
           </Button>
         </div>
       </div>
@@ -331,27 +280,11 @@ export default function BookingSlots({ id }) {
         </div>
       )}
 
-      {/* Reason for Visit Input */}
-      {selectedDateIndex !== null && selectedTime && (
-        <div className="mb-8">
-          <FormInput
-            label="Reason for Visit"
-            type="text"
-            placeholder="Please describe your reason for visiting..."
-            name="reasonForVisit"
-            value={reasonForVisit}
-            onChange={(e) => setReasonForVisit(e.target.value)}
-            register={() => ({})}
-            className="w-full"
-          />
-        </div>
-      )}
-
       <Button
         onClick={handleBooking}
-        disabled={selectedTime === null || selectedDateIndex === null || !reasonForVisit.trim() || isSubmitting}
+        disabled={selectedTime === null || selectedDateIndex === null || isSubmitting}
         className={`w-[80%] md:w-[50%] py-4 !rounded-[20px] text-white font-semibold transition-all ${
-          selectedTime === null || selectedDateIndex === null || !reasonForVisit.trim() || isSubmitting
+          selectedTime === null || selectedDateIndex === null || isSubmitting
             ? "!bg-gray-300 cursor-not-allowed"
             : "!bg-[var(--main-lite-color)] hover:!bg-[var(--main-color)]"
         }`}

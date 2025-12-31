@@ -68,14 +68,13 @@ export async function getDoctorAvailableDays(doctorId) {
 }
 
 // Create a reservation/booking
-export async function createReservation(doctorId, date, startTime, endTime, reasonForVisit) {
+export async function createReservation(doctorId, date, startTime, endTime) {
     try {
         const res = await axiosClient.post(`${backendURL}/api/reservations`, {
             doctorId,
             date,
             startTime,
-            endTime,
-            reasonForVisit
+            endTime
         });
         return res.data;
     } catch (error) {

@@ -1,8 +1,10 @@
 // For all doctor data 
+
 import axios from "axios";
 import axiosClient from "./axiosClient";
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
+
 const doctorsAPI = `/api/doctors/search`;
 
 // Get all doctors or search with filters
@@ -61,22 +63,6 @@ export async function getDoctorAvailability(doctorId, date) {
 export async function getDoctorAvailableDays(doctorId) {
     try {
         const res = await axiosClient.get(`${backendURL}/api/doctors/${doctorId}/availableDays`);
-        return res.data;
-    } catch (error) {
-        throw error;
-    }
-}
-
-// Create a reservation/booking
-export async function createReservation(doctorId, date, startTime, endTime, reasonForVisit) {
-    try {
-        const res = await axiosClient.post(`${backendURL}/api/reservations`, {
-            doctorId,
-            date,
-            startTime,
-            endTime,
-            reasonForVisit
-        });
         return res.data;
     } catch (error) {
         throw error;
