@@ -12,3 +12,16 @@ export async function getReservationDetails(reservationId) {
         throw error;
     }
 }
+
+// Create payment intent
+export async function createPaymentIntent({ price, reservationId }) {
+    try {
+        const res = await axiosClient.post(`${backendURL}/api/payments/intent`, {
+            price,
+            reservationId
+        });
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}

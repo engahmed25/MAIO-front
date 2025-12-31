@@ -1,8 +1,9 @@
 import { useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import StripeProvider from "./Stripe/StripeProvider";
 import ConfirmAppointmentPage from "../../pages/ConfirmAppointmentPage";
 import CardPaymentFormPage from "../../pages/CardPaymentFormPage";
+import { usePaymentIntent } from "./usePaymentIntent";
 
 function PaymentConfirmation() {
   const location = useLocation();
@@ -15,21 +16,16 @@ function PaymentConfirmation() {
     clinicLocation,
     price,
     payMethod,
+    reservationId,
   } = location.state || {};
 
-  const [clientSecret, setClientSecret] = useState("");
+  const { mutate: createPaymentIntent, data, isLoading } = usePaymentIntent();
 
   useEffect(() => {
-    if (payMethod === "debitCard") {
-      fetch("http://localhost:5000/api/payment/create-intent", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ price }),
-      })
-        .then((res) => res.json())
-        .then((data) => setClientSecret(data.clientSecret));
+    if (payMethod === "debitCard" && !data) {
+      createPaymentIntent({ price, reservationId });
     }
-  }, [payMethod, price]);
+  }, [payMethod, price, reservationId, data, createPaymentIntent]);
 
   if (!payMethod) return null;
 
@@ -59,10 +55,10 @@ function PaymentConfirmation() {
             Card Payment
           </h2>
 
-          {clientSecret ? (
+          {data?.data?.clientSecret ? (
             <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
               <CardPaymentFormPage
-                clientSecret={clientSecret}
+                clientSecret={data.data.clientSecret}
                 appointmentData={{
                   drName,
                   speciality,
