@@ -28,9 +28,8 @@ import ConsultingDoctors from "./pages/ConsultingDoctors.jsx";
 import UploadPatientsFiles from "./pages/UploadPatientsFiles.jsx";
 import EmailConfirmation from "./pages/EmailConfirmation.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import DoctorsBySpecialization from "./pages/DoctorsBySpecialization.jsx";
-import { MedicalHistory as MedicalHistoryComponent } from "./features/Patients/MedicalHistory.jsx";
+// import { MedicalHistory as MedicalHistoryComponent } from "./features/Patients/MedicalHistory.jsx";
 import PatientInfo from "./features/Patients/PatienInfo/PatientInfo.jsx";
 
 import PaymentPage from "./pages/PaymentPage.jsx";
@@ -82,10 +81,10 @@ const router = createBrowserRouter([
     path: "/register",
     element: <Register />,
   },
-  {
-    path: "/patient/medical-history/:patientId",
-    element: <MedicalHistoryComponent />,
-  },
+  // {
+  //   path: "/patient/medical-history/:patientId",
+  //   element: <MedicalHistoryComponent />,
+  // },
   {
     path: "/login",
     element: <Login />,
@@ -132,7 +131,7 @@ const router = createBrowserRouter([
 
   {
     path: "/PatientDashboard",
-    element: <PatientDashboard />
+    element: <PatientDashboard />,
   },
   {
     path: "/forgot-password",
@@ -146,10 +145,10 @@ const router = createBrowserRouter([
     path: "/wait",
     element: <WaitAdminApproval />,
   },
-  {
-    path: "/medicalss",
-    element: <MedicalHistory />,
-  },
+  // {
+  //   path: "/medicalss",
+  //   element: <MedicalHistory />,
+  // },
   //! we need to reuse the layout for both doctor and patient dashboard
   {
     path: "/doctor",
@@ -214,7 +213,6 @@ function App() {
         <QueryClientProvider client={queryClient}>
           {" "}
           <RouterProvider router={router} />
-          <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
         </QueryClientProvider>
         <Toaster position="top-center" />
       </AuthProvider>

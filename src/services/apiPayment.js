@@ -47,3 +47,16 @@ export async function getUpcomingAppointments() {
     const res = await axiosClient.get(`${backendURL}/api/patients/me/appointments/upcoming`);
     return res.data?.data;
 }
+
+// Create payment intent
+export async function createPaymentIntent({ price, reservationId }) {
+    try {
+        const res = await axiosClient.post(`${backendURL}/api/payments/intent`, {
+            price,
+            reservationId
+        });
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}

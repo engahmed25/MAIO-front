@@ -59,9 +59,7 @@ function AppointmentSummaryCard(props) {
       <div className="pt-4 border-t border-gray-200">
         <div className="flex justify-between items-center">
           <span className="font-bold text-gray-900">Total Amount</span>
-          <span className="text-xl font-bold text-blue-600">
-            {props.price}
-          </span>
+          <span className="text-xl font-bold text-blue-600">{props.price}</span>
         </div>
       </div>
     </div>
