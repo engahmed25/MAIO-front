@@ -1,9 +1,11 @@
-// For all doctor data 
+// For all patient data 
 
-import axios from "axios";
+import axiosClient from "./axiosClient";
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 
-const API_URL = "http://localhost:5000/api/doctors";
+// Get upcoming appointments with doctors for the current patient
+export async function getDoctorsByPatient() {
+    const response = await axiosClient.get(`${backendURL}/api/patients/me/appointments/upcoming`);
+    return response.data;
+}
 
-/*
-
-*/

@@ -44,7 +44,7 @@ const specialtyOptions = [
   "Ophthalmology",
 ];
 
-const Search = () => {
+function Search() {
   const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
     doctor: "",
@@ -199,6 +199,6 @@ const Search = () => {
       </div>
     </section>
   );
-};
+}
 
 export default Search;

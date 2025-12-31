@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import FileViewerModal from "../features/Patients/FileViewer";
 import { useUploadPatientFiles } from "../features/Patients/useUploadPatientFiles";
+import { useGetPatientsDocs } from "../features/Patients/useGetPatientsDocs";
+import toast from "react-hot-toast";
 
 // Main UploadPatientsFiles Component
 export default function UploadPatientsFiles() {
@@ -24,6 +26,15 @@ export default function UploadPatientsFiles() {
   const [pendingFiles, setPendingFiles] = useState([]); // Files waiting to be uploaded
   const { uploadFiles, isUploading, uploadError, uploadSuccess } =
     useUploadPatientFiles();
+
+  // Fetch existing medical documents
+  const {
+    medicalDocuments,
+    patientName,
+    profilePicture,
+    isLoading: isLoadingDocs,
+    refetch: refetchDocs,
+  } = useGetPatientsDocs();
 
   const [viewingFile, setViewingFile] = useState(null);
 
@@ -35,6 +46,39 @@ export default function UploadPatientsFiles() {
     "Dr. Evelyn Reed",
   ];
 
+  // Convert backend medical documents to the format expected by FileCard
+  useEffect(() => {
+    if (medicalDocuments && medicalDocuments.length > 0) {
+      const backendURL =
+        import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
+      const formattedFiles = medicalDocuments.map((doc) => ({
+        id: doc._id || doc.id,
+        name: doc.title,
+        type: doc.fileType,
+        size: doc.size || 0, // Add size if available from backend
+        doctorName: doc.doctorName,
+        documentType: doc.documentType,
+        uploadDate: doc.uploadedAt
+          ? new Date(doc.uploadedAt).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : new Date().toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+        preview: `${backendURL}/${doc.filePath.replace(/\\/g, "/")}`, // Convert Windows path to URL
+        url: `${backendURL}/${doc.filePath.replace(/\\/g, "/")}`,
+        isFromBackend: true, // Flag to identify backend files
+      }));
+
+      setFiles(formattedFiles);
+    }
+  }, [medicalDocuments]);
+
   const handleFileSelect = (file) => {
     // Create a preview URL for the file
     const reader = new FileReader();
@@ -45,7 +89,8 @@ export default function UploadPatientsFiles() {
         name: file.name,
         type: file.type,
         size: file.size,
-        requestedBy: doctors[Math.floor(Math.random() * doctors.length)],
+        doctorName: "", // Initialize empty doctor name
+        documentType: "", // Initialize empty document type
         uploadDate: new Date().toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
@@ -67,26 +112,54 @@ export default function UploadPatientsFiles() {
     setPendingFiles((prev) => prev.filter((file) => file.id !== fileId));
   };
 
+  // Handle metadata updates (doctor name, document type)
+  const handleUpdateMetadata = (fileId, field, value) => {
+    setFiles((prevFiles) =>
+      prevFiles.map((file) =>
+        file.id === fileId ? { ...file, [field]: value } : file
+      )
+    );
+    setPendingFiles((prev) =>
+      prev.map((file) =>
+        file.id === fileId ? { ...file, [field]: value } : file
+      )
+    );
+  };
+
   // ✅ HANDLE UPLOAD TO BACKEND
   const handleUploadToBackend = async () => {
     if (pendingFiles.length === 0) {
-      alert("No files to upload!");
+      toast.error("No files to upload");
       return;
     }
 
-    // Get patient ID from localStorage or context
-    // Adjust this based on how you store the logged-in user's data
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const patientId = userData.id || userData._id || "PAT-2024-001"; // Fallback for demo
+    // Validate that all files have required metadata
+    const invalidFiles = pendingFiles.filter(
+      (file) => !file.doctorName || !file.documentType
+    );
+
+    if (invalidFiles.length > 0) {
+      toast.error(
+        "Please fill in Doctor Name and Document Type for all files before uploading"
+      );
+      return;
+    }
 
     try {
-      await uploadFiles(patientId, pendingFiles);
+      // ✅ Only pass the files array with metadata
+      await uploadFiles(pendingFiles);
       // Clear pending files after successful upload
       setPendingFiles([]);
-      alert("Files uploaded successfully!");
+      toast.success("All files uploaded to server");
+      // Refetch the medical documents to update the list
+      refetchDocs();
     } catch (error) {
       console.error("Upload failed:", error);
-      alert(`Upload failed: ${error.message}`);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to upload files"
+      );
     }
   };
 
@@ -119,7 +192,10 @@ export default function UploadPatientsFiles() {
               <User className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">Patient: John Doe</p>
+              <p className="font-medium text-gray-900">
+                Patient:{" "}
+                {isLoadingDocs ? "Loading..." : patientName || "John Doe"}
+              </p>
               <p className="text-sm text-gray-600">ID: #PAT-2024-001</p>
             </div>
           </div>
@@ -213,7 +289,14 @@ export default function UploadPatientsFiles() {
         )}
 
         {/* Files Grid or Empty State */}
-        {files.length === 0 ? (
+        {isLoadingDocs ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <span className="ml-3 text-gray-600">
+              Loading your medical documents...
+            </span>
+          </div>
+        ) : files.length === 0 ? (
           <EmptyState />
         ) : (
           <>
@@ -228,6 +311,7 @@ export default function UploadPatientsFiles() {
                     file={file}
                     onDelete={handleDeleteFile}
                     onView={setViewingFile}
+                    onUpdateMetadata={handleUpdateMetadata}
                   />
                 ))}
               </div>

@@ -8,9 +8,11 @@ import {
   Eye,
   Calendar,
   User,
+  Stethoscope,
+  FileType,
 } from "lucide-react";
 // FileCard Component
-export default function FileCard({ file, onDelete, onView }) {
+export default function FileCard({ file, onDelete, onView, onUpdateMetadata }) {
   const getFileIcon = (type) => {
     if (type.startsWith("image/")) {
       return <FileImage className="w-8 h-8 text-blue-500" />;
@@ -52,15 +54,46 @@ export default function FileCard({ file, onDelete, onView }) {
         {formatFileSize(file.size)}
       </p>
 
-      {/* Doctor Info */}
-      <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-100">
-        <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-gray-500">Requested by</p>
-          <p className="text-sm font-medium text-gray-900 truncate">
-            {file.requestedBy}
-          </p>
-        </div>
+      {/* Doctor Name Input */}
+      <div className="mb-3">
+        <label className="flex items-center gap-2 text-xs text-gray-600 mb-1.5">
+          <Stethoscope className="w-3.5 h-3.5" />
+          Doctor Name
+        </label>
+        <input
+          type="text"
+          value={file.doctorName || ""}
+          onChange={(e) =>
+            onUpdateMetadata(file.id, "doctorName", e.target.value)
+          }
+          placeholder="Enter doctor name"
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+
+      {/* Document Type Select */}
+      <div className="mb-3 pb-3 border-b border-gray-100">
+        <label className="flex items-center gap-2 text-xs text-gray-600 mb-1.5">
+          <FileType className="w-3.5 h-3.5" />
+          Document Type
+        </label>
+        <select
+          value={file.documentType || ""}
+          onChange={(e) =>
+            onUpdateMetadata(file.id, "documentType", e.target.value)
+          }
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+        >
+          <option value="">Select type</option>
+          <option value="Lab Results">Lab Results</option>
+          <option value="MRI">MRI</option>
+          <option value="X-Ray">X-Ray</option>
+          <option value="CT Scan">CT Scan</option>
+          <option value="Ultrasound">Ultrasound</option>
+          <option value="Prescription">Prescription</option>
+          <option value="Medical Report">Medical Report</option>
+          <option value="Vaccination Record">Vaccination Record</option>
+        </select>
       </div>
 
       {/* Upload Date */}
