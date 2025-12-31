@@ -11,6 +11,7 @@ import { QueryClient } from "@tanstack/query-core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import AllDoctors from "./pages/AllDoctors.jsx";
 import PatientDashboard from "./pages/PatientDashboard.jsx";
+import Home2 from "./pages/Home2.jsx";
 
 import MedicalHistory from "./features/Authentication/MedicalHistoryForm.jsx";
 import { Toaster } from "react-hot-toast";
@@ -29,6 +30,7 @@ import EmailConfirmation from "./pages/EmailConfirmation.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import DoctorsBySpecialization from "./pages/DoctorsBySpecialization.jsx";
+import { MedicalHistory as MedicalHistoryComponent } from "./features/Patients/MedicalHistory.jsx";
 // import store from "./utils/authStore.js";
 // import * as authKit from "react-auth-kit";
 const queryClient = new QueryClient({
@@ -75,8 +77,16 @@ const router = createBrowserRouter([
     element: <Register />,
   },
   {
+    path: "/patient/medical-history/:patientId",
+    element: <MedicalHistoryComponent />,
+  },
+  {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/HOME",
+    element: <Home2 />,
   },
 
   {
@@ -88,10 +98,7 @@ const router = createBrowserRouter([
     path: "/register/patients",
     element: <PatientRegisterFormWizard />,
   },
-  {
-    path: "/patient/upload-files",
-    element: <UploadPatientsFiles />,
-  },
+
   {
     path: "/unauthorized",
     element: <Unauthorized />,
@@ -116,6 +123,7 @@ const router = createBrowserRouter([
     path: "/doctor/info",
     element: <DrInfo />,
   },
+
   {
     path: "/forgot-password",
     element: <EmailConfirmation />,
@@ -128,15 +136,14 @@ const router = createBrowserRouter([
     path: "/wait",
     element: <WaitAdminApproval />,
   },
-
+  {
+    path: "/medicalss",
+    element: <MedicalHistory />,
+  },
   //! we need to reuse the layout for both doctor and patient dashboard
   {
     path: "/doctor",
-    element: (
-      <ProtectedRoute allowedRoles={["doctor"]}>
-        <DashboardLayout role="doctor" />
-      </ProtectedRoute>
-    ),
+    element: <DashboardLayout role="doctor" />,
     children: [
       { path: "dashboard", element: <DoctorDashBoard /> },
       { path: "patientList", element: <PatientList /> },
@@ -150,7 +157,13 @@ const router = createBrowserRouter([
         <DashboardLayout role="patient" />
       </ProtectedRoute>
     ),
-    children: [{ path: "dashboard", element: <PatientDashboard /> }],
+    children: [
+      { path: "dashboard", element: <PatientDashboard /> },
+      {
+        path: "/patient/upload-files",
+        element: <UploadPatientsFiles />,
+      },
+    ],
   },
   {
     path: "/wait",

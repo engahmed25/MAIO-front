@@ -1,18 +1,21 @@
 /* Global rules*/
 @import "tailwindcss";
+#root {
+  padding-bottom: 0 !important;
+}
 
 :root {
   --main-color: #014ed5;
   --main-lite-color: #014ed5d4;
-  --main-verylite-color:#eff6ff;
+  --main-verylite-color: #eff6ff;
   --backGround-color: #d9d9d9;
   --main-transition: 0.3s;
   --main-radius: 10px;
   --main-padding-top: 80px;
   --main-padding-bottom: 80px;
   --sec-color: #fafafa;
-  
-  --head-desc-color:rgb(88, 88, 88); 
+
+  --head-desc-color: rgb(88, 88, 88);
 }
 * {
   -moz-box-sizing: border-box;

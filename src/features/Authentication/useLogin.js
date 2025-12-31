@@ -15,6 +15,9 @@ export function useLogin() {
         mutationFn: login,
 
         onSuccess: (data) => {
+            console.log("🔵 Step 1: Login API Response:", data);
+            console.log("🔵 Step 2: Access Token from API:", data.accessToken);
+
             const user = data.data;
 
             if (user.role === "doctor" && user.status === "pending") {
@@ -26,6 +29,7 @@ export function useLogin() {
                 return;
             }
             //! this only for approved doctors and for any patient signin
+            console.log("🔵 Step 3: Calling signIn with token:", data.accessToken);
             const signedin = siginIn({
                 token: data.accessToken,
                 expiresIn: 3600, // 1 hour
@@ -34,6 +38,9 @@ export function useLogin() {
                     user: user,
                 },
             });
+
+            console.log("🔵 Step 4: SignIn result:", signedin);
+            console.log("🔵 Step 5: All cookies:", document.cookie);
 
             if (signedin) {
                 toast.success("Login successful!");

@@ -14,27 +14,56 @@ import AppointmentCard from "../features/Patients/AppointmentsCard";
 import HealthVitalCard from "../features/Patients/HealthVitalCard";
 import MedicationCard from "../features/Patients/MedicationCard";
 import MedicalRecordRow from "../features/Patients/MedicalRecordRow";
+import { useDoctorsByPatient } from "../features/Patients/useDoctorsByPatient";
+import { useGetPatientsDocs } from "../features/Patients/useGetPatientsDocs";
+
 export default function PatientDashboard() {
-  const appointments = [
-    {
-      id: 1,
-      doctor: "Dr. Evelyn Reed",
-      specialty: "Cardiology",
-      time: "10:00 AM",
-      reason: "Follow-up Consultation",
-      location: "MAIO Medical Center, Suite 402",
-      date: "Mon, Dec 15, 2025",
-    },
-    {
-      id: 2,
-      doctor: "Dr. Alex Johnson",
-      specialty: "General Practice",
-      time: "02:30 PM",
-      reason: "Routine Check-up",
-      location: "Main Clinic, Floor 1",
-      date: "Mon, Dec 22, 2025",
-    },
-  ];
+  console.log("🏥 PatientDashboard component is rendering!");
+
+  // Fetch appointments data from API
+  const {
+    appointments: apiAppointments,
+    isLoading,
+    error,
+  } = useDoctorsByPatient();
+
+  console.log("✅ After useDoctorsByPatient hook");
+
+  // Fetch medical documents from API
+  const { medicalDocuments, isLoading: isLoadingDocs } = useGetPatientsDocs();
+
+  console.log("✅ After useGetPatientsDocs hook");
+
+  // Debug: Log medical documents
+  console.log("==============================================");
+  console.log(
+    "🩺 PATIENT DASHBOARD - Medical Documents from useGetPatientsDocs:"
+  );
+  console.log("medicalDocuments:", medicalDocuments);
+  console.log("medicalDocuments type:", typeof medicalDocuments);
+  console.log("medicalDocuments is array?:", Array.isArray(medicalDocuments));
+  console.log("medicalDocuments length:", medicalDocuments?.length);
+  console.log("🔄 Is Loading Docs:", isLoadingDocs);
+  console.log("==============================================");
+
+  // Transform API data to match AppointmentCard component props
+  const appointments = apiAppointments.map((appointment) => ({
+    id: appointment._id,
+    doctor:
+      appointment.doctorId?.fullName ||
+      `Dr. ${appointment.doctorId?.firstName} ${appointment.doctorId?.lastName}`,
+    specialty: appointment.doctorId?.specialization || "N/A",
+    time: appointment.startTime,
+    reason: appointment.reasonForVisit,
+    location: appointment.doctorId?.clinicAddress || "Location not available",
+    date: new Date(appointment.appointmentDate).toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }),
+    status: appointment.status,
+  }));
 
   const healthVitals = [
     {
@@ -124,40 +153,40 @@ export default function PatientDashboard() {
     },
   ];
 
-  const medicalRecords = [
-    {
-      id: 1,
-      date: "Dec 9, 2025",
-      type: "Lab Results",
-      title: "Blood Work - Complete Panel",
-      doctor: "Dr. Evelyn Reed",
+  // Transform medical documents from API to match MedicalRecordRow props
+  const medicalRecords = medicalDocuments.map((doc) => {
+    console.log("🔍 Processing document:", doc);
+
+    console.log("Document ID:", medicalDocuments);
+    return {
+      id: doc._id || doc.id,
+      date: doc.uploadedAt
+        ? new Date(doc.uploadedAt).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+        : new Date().toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }),
+      type: doc.documentType || "Medical Document",
+      title: doc.title,
+      doctor: doc.doctorName || "N/A",
       status: "Active",
-    },
-    {
-      id: 2,
-      date: "Dec 5, 2025",
-      type: "Prescription",
-      title: "Lisinopril 5mg - Daily",
-      doctor: "Dr. Alex Johnson",
-      status: "Active",
-    },
-    {
-      id: 3,
-      date: "Nov 28, 2025",
-      type: "Diagnosis",
-      title: "Mild Hypertension",
-      doctor: "Dr. Evelyn Reed",
-      status: "Active",
-    },
-    {
-      id: 4,
-      date: "Nov 15, 2025",
-      type: "Procedure Note",
-      title: "ECG - Routine Monitoring",
-      doctor: "Dr. Sarah Chen",
-      status: "Archived",
-    },
-  ];
+      filePath: doc.filePath,
+      fileType: doc.fileType,
+    };
+  });
+
+  // Debug: Log transformed records
+  console.log("==============================================");
+  console.log("📋 AFTER TRANSFORMATION - Transformed Medical Records:");
+  console.log("medicalRecords:", medicalRecords);
+  console.log("medicalRecords length:", medicalRecords.length);
+  console.log("First record:", medicalRecords[0]);
+  console.log("==============================================");
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -182,11 +211,27 @@ export default function PatientDashboard() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {appointments.map((appointment) => (
-            <AppointmentCard key={appointment.id} appointment={appointment} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading appointments...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-red-600">
+              Error loading appointments. Please try again later.
+            </p>
+          </div>
+        ) : appointments.length === 0 ? (
+          <div className="text-center py-8 bg-white border border-gray-200 rounded-lg">
+            <p className="text-gray-600">No upcoming appointments found.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {appointments.map((appointment) => (
+              <AppointmentCard key={appointment.id} appointment={appointment} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Quick Actions */}
@@ -246,35 +291,49 @@ export default function PatientDashboard() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  Date
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  Type
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  Title
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  Doctor
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {medicalRecords.map((record) => (
-                <MedicalRecordRow key={record.id} record={record} />
-              ))}
-            </tbody>
-          </table>
+          {isLoadingDocs ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              <span className="ml-3 text-gray-600">
+                Loading medical records...
+              </span>
+            </div>
+          ) : medicalRecords.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <FileText className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+              <p>No medical records found</p>
+            </div>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    Date
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    Title
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    Doctor
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {medicalRecords.map((record) => (
+                  <MedicalRecordRow key={record.id} record={record} />
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <div className="mt-4 text-center">

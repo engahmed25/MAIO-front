@@ -1,3 +1,6 @@
+// 
+
+
 import axios from "axios";
 
 const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -7,14 +10,32 @@ const axiosClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
     }
-
 });
 
-//! we need to attach the token (from react auth kit) to each request if available
-axiosClient.interceptors.request.use(config => {
-    const token = localStorage.getItem("accessToken");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
-    return config;
-})
+// ✅ Helper function to get cookie value
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+// ✅ Add request interceptor to attach token from react-auth-kit
+axiosClient.interceptors.request.use(
+    (config) => {
+        // Get token from react-auth-kit cookie
+        const token = getCookie("_auth");
+
+        if (token) {
+            // Add Bearer token to Authorization header
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 export default axiosClient;
