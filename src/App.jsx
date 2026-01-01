@@ -12,8 +12,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import AllDoctors from "./pages/AllDoctors.jsx";
 import PatientDashboard from "./pages/PatientDashboard.jsx";
 import Home2 from "./pages/Home2.jsx";
-
-import MedicalHistory from "./features/Authentication/MedicalHistoryForm.jsx";
+import MedicalHistory from "./features/Patients/MedicalHistory/MedicalHistory.jsx";
+// import MedicalHistory from "./features/Authentication/MedicalHistoryForm.jsx";
 import { Toaster } from "react-hot-toast";
 import Doctor from "./pages/Doctor.jsx";
 import MyAppointments from "./pages/MyAppointments.jsx";
@@ -116,13 +116,17 @@ const router = createBrowserRouter([
   //     </ProtectedRoute>
   //   ),
   // },
+  // {
+  //   path: "/patient/medical-history",
+  //   element: (
+  //     <ProtectedRoute allowedRoles={["patient", "doctor"]}>
+  //       <MedicalHistory />
+  //     </ProtectedRoute>
+  //   ),
+  // },
   {
     path: "/patient/medical-history",
-    element: (
-      <ProtectedRoute allowedRoles={["patient", "doctor"]}>
-        <MedicalHistory />
-      </ProtectedRoute>
-    ),
+    element: <MedicalHistory />,
   },
   {
     path: "/doctor/info",
