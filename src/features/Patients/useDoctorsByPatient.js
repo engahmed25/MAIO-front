@@ -11,6 +11,13 @@ export function useDoctorsByPatient() {
         enabled: isAuthenticated(), // Only run if user is authenticated
     });
 
+    console.log("🔴 useDoctorsByPatient HOOK - Raw query.data:", query.data);
+    console.log("🔴 query.data?.data:", query.data?.data);
+    if (query.data?.data?.[0]) {
+        console.log("🔴 First appointment from API:", query.data.data[0]);
+        console.log("🔴 First appointment keys:", Object.keys(query.data.data[0]));
+    }
+
     return {
         appointments: query.data?.data || [],
         isLoading: query.isLoading,

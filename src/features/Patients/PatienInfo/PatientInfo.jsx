@@ -4,14 +4,24 @@ import ViewRecordButton from "./ViewRecordButton";
 import DoctorChatButton from "./DoctorChatButton";
 import ScheduleAppointmentButton from "./ScheduleAppointmentButton";
 
-export default function PatientInfo() {
-  const userData = {
-    id: "p.1001",
-    name: "Thomas Bailey",
-    age: 45,
-    status: "Under Observation",
-    avatar: "TB",
-  };
+export default function PatientInfo({ patientData }) {
+  const userData = patientData
+    ? {
+        id: patientData.patientId,
+        name: `${patientData.firstName} ${patientData.lastName}`,
+        age: patientData.age,
+        status: "Under Observation",
+        avatar: `${patientData.firstName[0]}${patientData.lastName[0]}`,
+        gender: patientData.gender,
+        profilePicture: patientData.profilePicture,
+      }
+    : {
+        id: "p.1001",
+        name: "Thomas Bailey",
+        age: 45,
+        status: "Under Observation",
+        avatar: "TB",
+      };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">

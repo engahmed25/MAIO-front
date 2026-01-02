@@ -1,6 +1,9 @@
 import { Calendar, Eye } from "lucide-react";
 import Button from "../../ui/Button";
+import { useNavigate } from "react-router-dom";
+
 function PatientCard({ patient }) {
+  const navigate = useNavigate();
   const getStatusConfig = (status) => {
     const configs = {
       observation: {
@@ -69,7 +72,10 @@ function PatientCard({ patient }) {
       </div>
 
       {/* View Profile Button */}
-      <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+      <Button 
+        onClick={() => navigate(`/doctor/patient/${patient.id}`)}
+        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+      >
         <Eye className="w-4 h-4" />
         View Profile
       </Button>

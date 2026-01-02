@@ -1,9 +1,23 @@
 import React, { useState } from "react";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-function SideCalendar({ selectedDate, onDateChange, appointmentsData }) {
+import { useDoctorMonthAppointments } from "./useDoctorMonthAppointments";
+
+function SideCalendar({ selectedDate, onDateChange }) {
+  console.log("📅 SideCalendar - selectedDate prop:", selectedDate);
+  console.log("📅 SideCalendar - selectedDate type:", typeof selectedDate);
+  console.log(
+    "📅 SideCalendar - selectedDate is Date?",
+    selectedDate instanceof Date
+  );
+
   const [currentMonth, setCurrentMonth] = useState(
     new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
   );
+
+  // Fetch appointments for the current month to show dots
+  const { appointmentsByDay } = useDoctorMonthAppointments(currentMonth);
+
+  console.log("📅 SideCalendar - currentMonth state:", currentMonth);
 
   const monthNames = [
     "January",
@@ -46,10 +60,7 @@ function SideCalendar({ selectedDate, onDateChange, appointmentsData }) {
 
   const hasAppointments = (day) => {
     if (!day) return false;
-    const dateKey = `${currentMonth.getFullYear()}-${String(
-      currentMonth.getMonth() + 1
-    ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return appointmentsData[dateKey] && appointmentsData[dateKey].length > 0;
+    return appointmentsByDay[day] === true;
   };
 
   const isSelectedDate = (day) => {
@@ -61,13 +72,45 @@ function SideCalendar({ selectedDate, onDateChange, appointmentsData }) {
     );
   };
 
+  const isPastDate = (day) => {
+    if (!day) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset to start of day for accurate comparison
+
+    const dateToCheck = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      day
+    );
+    dateToCheck.setHours(0, 0, 0, 0);
+
+    return dateToCheck < today;
+  };
+
   const handleDayClick = (day) => {
-    if (day) {
+    if (day && !isPastDate(day)) {
       const newDate = new Date(
         currentMonth.getFullYear(),
         currentMonth.getMonth(),
         day
       );
+
+      // Format date for backend: YYYY-MM-DD
+      const year = newDate.getFullYear();
+      const month = String(newDate.getMonth() + 1).padStart(2, "0");
+      const dayFormatted = String(newDate.getDate()).padStart(2, "0");
+      const formattedDate = `${year}-${month}-${dayFormatted}`;
+
+      console.log("📅 SideCalendar - Raw Date object:", newDate);
+      console.log(
+        "📅 SideCalendar - Formatted for backend (YYYY-MM-DD):",
+        formattedDate
+      );
+      console.log(
+        "📅 SideCalendar - Date as ISO string:",
+        newDate.toISOString()
+      );
+
       onDateChange(newDate);
     }
   };
@@ -86,17 +129,6 @@ function SideCalendar({ selectedDate, onDateChange, appointmentsData }) {
 
   const days = generateCalendarDays();
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  // Calculate total appointments for current month
-  const totalAppointmentsThisMonth = Object.keys(appointmentsData)
-    .filter((key) =>
-      key.startsWith(
-        `${currentMonth.getFullYear()}-${String(
-          currentMonth.getMonth() + 1
-        ).padStart(2, "0")}`
-      )
-    )
-    .reduce((sum, key) => sum + appointmentsData[key].length, 0);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -132,37 +164,32 @@ function SideCalendar({ selectedDate, onDateChange, appointmentsData }) {
       </div>
 
       <div className="grid grid-cols-7 gap-1">
-        {days.map((day, index) => (
-          <div
-            key={index}
-            onClick={() => handleDayClick(day)}
-            className={`aspect-square flex items-center justify-center text-sm rounded-lg relative ${
-              day === null
-                ? ""
-                : isSelectedDate(day)
-                ? "bg-blue-600 text-white font-semibold cursor-pointer"
-                : "text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors"
-            }`}
-          >
-            {day}
-            {hasAppointments(day) && !isSelectedDate(day) && (
-              <span className="absolute bottom-1 w-1 h-1 bg-blue-500 rounded-full"></span>
-            )}
-          </div>
-        ))}
-      </div>
+        {days.map((day, index) => {
+          const isPast = isPastDate(day);
+          const isSelected = isSelectedDate(day);
+          const hasApts = hasAppointments(day);
 
-      <div className="mt-6 pt-4 border-t border-gray-200 space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">Appointments this month</span>
-          <span className="font-semibold text-gray-900">
-            {totalAppointmentsThisMonth}
-          </span>
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">Pending consultations</span>
-          <span className="font-semibold text-yellow-600">2</span>
-        </div>
+          return (
+            <div
+              key={index}
+              onClick={() => handleDayClick(day)}
+              className={`aspect-square flex items-center justify-center text-sm rounded-lg relative ${
+                day === null
+                  ? ""
+                  : isPast
+                  ? "text-gray-300 cursor-not-allowed"
+                  : isSelected
+                  ? "bg-blue-600 text-white font-semibold cursor-pointer"
+                  : "text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors"
+              }`}
+            >
+              {day}
+              {hasApts && !isSelected && !isPast && (
+                <span className="absolute bottom-1 w-1 h-1 bg-blue-500 rounded-full"></span>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

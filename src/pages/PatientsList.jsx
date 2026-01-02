@@ -2,46 +2,70 @@ import React, { useState } from "react";
 import { Download } from "lucide-react";
 import PatientCard from "../features/Doctors/PateintCard";
 import SearchPatients from "../features/Doctors/SearchPatients";
+import { usePatientsByDoctor } from "../features/Doctors/usePatientsByDoctor";
+import Spinner from "../ui/Spinner";
 
 function PatientsList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  // Sample patient data
-  const allPatients = [
-    {
-      id: 1,
-      name: "Thomas Bailey",
-      initials: "TB",
-      age: 45,
-      status: "observation",
-      lastAppointment: "Dec 9, 2025",
-    },
-    {
-      id: 2,
-      name: "Maria Rodriguez",
-      initials: "MR",
-      age: 62,
-      status: "critical",
-      lastAppointment: "Dec 10, 2025",
-    },
-    {
-      id: 3,
-      name: "Oliver Smith",
-      initials: "OS",
-      age: 28,
-      status: "stable",
-      lastAppointment: "Dec 5, 2025",
-    },
-    {
-      id: 4,
-      name: "Jessica Lee",
-      initials: "JL",
-      age: 71,
-      status: "referred",
-      lastAppointment: "Nov 28, 2025",
-    },
-  ];
+  // Fetch patients from API
+  const { isLoading, patients, totalPatients, error } = usePatientsByDoctor();
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 bg-gray-50 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex-1 bg-gray-50 flex items-center justify-center">
+        <p className="text-red-600">Error loading patients: {error.message}</p>
+      </div>
+    );
+  }
+
+  // Transform API data to match the expected format
+  const allPatients = patients.map((patient) => ({
+    id: patient.patientId,
+    name: patient.personalInfo.fullName,
+    initials: `${patient.personalInfo.firstName[0]}${patient.personalInfo.lastName[0]}`,
+    age: patient.personalInfo.age,
+    gender: patient.personalInfo.gender,
+    emergencyContact: patient.personalInfo.emergencyContact,
+    // Medical info
+    reasonForSeeingDoctor: patient.medicalOverview.reasonForSeeingDoctor,
+    drugAllergies: patient.medicalOverview.drugAllergies,
+    illnesses: patient.medicalOverview.illnesses,
+    currentMedications: patient.medicalOverview.currentMedications,
+    chronicDiseases: patient.medicalOverview.chronicDiseases,
+    allergies: patient.medicalOverview.allergies,
+    medicalNotes: patient.medicalOverview.medicalNotes,
+    // Appointment stats
+    totalAppointments: patient.appointmentStats.totalAppointments,
+    completedAppointments: patient.appointmentStats.completedAppointments,
+    upcomingAppointments: patient.appointmentStats.upcomingAppointments,
+    lastAppointment: patient.appointmentStats.lastVisit
+      ? new Date(patient.appointmentStats.lastVisit).toLocaleDateString(
+          "en-US",
+          {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }
+        )
+      : "N/A",
+    nextVisit: patient.appointmentStats.nextVisit,
+    registeredDate: patient.registeredDate,
+    // Status based on upcoming appointments
+    status:
+      patient.appointmentStats.upcomingAppointments > 0
+        ? "observation"
+        : "stable",
+  }));
 
   // Filter patients
   const filteredPatients = allPatients.filter((patient) => {
@@ -76,7 +100,7 @@ function PatientsList() {
         <p className="text-sm text-gray-600">
           Showing{" "}
           <span className="font-semibold">{filteredPatients.length}</span> of{" "}
-          <span className="font-semibold">{allPatients.length}</span> patients
+          <span className="font-semibold">{totalPatients}</span> patients
         </p>
         <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-lg border border-gray-200 transition-colors">
           <Download className="w-4 h-4" />

@@ -38,6 +38,15 @@ function UserButton({ profilePicture, role, userName }) {
     setIsOpen(false);
   }
 
+  function goToSettings() {
+    if (role === "doctor") {
+      navigate("/doctor/settings");
+    } else if (role === "patient") {
+      navigate("/patient/settings");
+    }
+    setIsOpen(false);
+  }
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* User Avatar Button */}
@@ -77,10 +86,7 @@ function UserButton({ profilePicture, role, userName }) {
           </button>
 
           <button
-            onClick={() => {
-              navigate("/settings");
-              setIsOpen(false);
-            }}
+            onClick={goToSettings}
             className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-gray-700"
           >
             <Settings size={18} />
