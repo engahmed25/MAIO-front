@@ -3,8 +3,12 @@ import { Check } from "lucide-react"; // Or use a custom SVG if you don't have l
 import AppointmentSummaryCard from "../features/paymentMethods/AppointmentSummaryCard";
 import PaymentStatusMessage from "../features/paymentMethods/PaymentStatusMessage";
 import { useLocation, useNavigate } from "react-router-dom";
+import Button from "../ui/Button";
 
-function ConfirmAppointmentPage({ payMethod: payMethodProp = "debitCard", appointmentInfo }) {
+function ConfirmAppointmentPage({
+  payMethod: payMethodProp = "debitCard",
+  appointmentInfo,
+}) {
   const { state } = useLocation();
   const navigate = useNavigate();
 
@@ -21,7 +25,10 @@ function ConfirmAppointmentPage({ payMethod: payMethodProp = "debitCard", appoin
         date: appt?.appointmentDate
           ? new Date(appt.appointmentDate).toLocaleDateString()
           : undefined,
-        time: appt?.startTime && appt?.endTime ? `${appt.startTime} - ${appt.endTime}` : undefined,
+        time:
+          appt?.startTime && appt?.endTime
+            ? `${appt.startTime} - ${appt.endTime}`
+            : undefined,
         clinicName: appt?.doctorId?.clinicName,
         clinicLocation: appt?.doctorId?.clinicAddress,
         price: appt?.amount,
@@ -31,7 +38,7 @@ function ConfirmAppointmentPage({ payMethod: payMethodProp = "debitCard", appoin
   }, [appointmentInfo, state]);
 
   function onClick() {
-    navigate("/");
+    navigate("/patient/dashboard");
   }
 
   return (
@@ -68,12 +75,12 @@ function ConfirmAppointmentPage({ payMethod: payMethodProp = "debitCard", appoin
           shouldCheckAppointments={state?.shouldCheckUpcoming}
           appointmentId={state?.confirmedAppointment?._id}
         />
-        <button
+        <Button
           onClick={onClick}
           className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors"
         >
           Done
-        </button>
+        </Button>
       </div>
     </div>
   );

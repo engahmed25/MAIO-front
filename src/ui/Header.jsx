@@ -4,6 +4,7 @@ import Button from "./Button";
 import { Link } from "react-router-dom";
 import UserButton from "./UserButton";
 import { useAuthUser, useIsAuthenticated } from "react-auth-kit";
+import { usePatientSettings } from "../features/Patients/usePatientSettings";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -11,9 +12,23 @@ export default function Header() {
   const auth = useAuthUser();
   const user = auth()?.user;
 
+  // Fetch latest patient data if user is a patient
+  const { patientData } = usePatientSettings();
+
   const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
-  console.log("Header render - Authenticated user:", user);
+  // Use patientData if available (for patients), otherwise use auth user data
+  const currentUser =
+    user?.role === "patient" && patientData
+      ? {
+          ...user,
+          profilePicture: patientData.profilePicture,
+          firstName: patientData.firstName,
+          lastName: patientData.lastName,
+        }
+      : user;
+
+  console.log("Header render - Authenticated user:", currentUser);
 
   return (
     <nav className=" bg-[var(--backGround-color)] px-6 py-4">
@@ -57,9 +72,9 @@ transition-all duration-300 hover:scale-110 hover:text-[var(--main-color)]"
         <div className="hidden md:flex items-center gap-4">
           {isAuthenticated() ? (
             <UserButton
-              profilePicture={`${baseUrl}/${user?.profilePicture}`}
-              role={user?.role}
-              userName={`${user?.firstName} ${user?.lastName}`}
+              profilePicture={`${baseUrl}/${currentUser?.profilePicture}`}
+              role={currentUser?.role}
+              userName={`${currentUser?.firstName} ${currentUser?.lastName}`}
             />
           ) : (
             <>
@@ -98,9 +113,9 @@ transition-all duration-300 hover:scale-110 hover:text-[var(--main-color)]"
           <div className="flex flex-col gap-3 pt-3">
             {isAuthenticated() ? (
               <UserButton
-                profilePicture={user?.profilePicture}
-                role={user?.role}
-                userName={`${user?.firstName} ${user?.lastName}`}
+                profilePicture={`${baseUrl}/${currentUser?.profilePicture}`}
+                role={currentUser?.role}
+                userName={`${currentUser?.firstName} ${currentUser?.lastName}`}
               />
             ) : (
               <>

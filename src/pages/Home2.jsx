@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   User,
   Search as SearchIcon,
@@ -21,6 +21,7 @@ import {
 
 import { Link } from "react-router-dom";
 import Search from "../ui/Search";
+import { useAuthHeader } from "react-auth-kit";
 
 // Header Component
 const Header = () => {
@@ -328,6 +329,17 @@ const FindBySpecialtySection = () => {
 
 // Main Home Component
 const Home2 = () => {
+  const authHeader = useAuthHeader();
+  const token = authHeader();
+  console.log("==============================================");
+  console.log("🔑 ACCESS TOKEN IN HOME PAGE:");
+  console.log("Full Auth Header:", token);
+
+  useEffect(() => {
+    console.log("Token (without Bearer):", token?.replace("Bearer ", ""));
+    console.log("==============================================");
+  }, [authHeader]);
+
   return (
     <div className="min-h-screen bg-white">
       <Header />

@@ -16,6 +16,7 @@ import MedicationCard from "../features/Patients/MedicationCard";
 import MedicalRecordRow from "../features/Patients/MedicalRecordRow";
 import { useDoctorsByPatient } from "../features/Patients/useDoctorsByPatient";
 import { useGetPatientsDocs } from "../features/Patients/useGetPatientsDocs";
+import { usePatientPrescriptions } from "../features/Patients/usePatientPrescriptions";
 
 export default function PatientDashboard() {
   console.log("🏥 PatientDashboard component is rendering!");
@@ -28,9 +29,17 @@ export default function PatientDashboard() {
   } = useDoctorsByPatient();
 
   console.log("✅ After useDoctorsByPatient hook");
+  console.log("📊 apiAppointments from hook:", apiAppointments);
+  console.log("📊 apiAppointments length:", apiAppointments?.length);
+  console.log("📊 isLoading:", isLoading);
+  console.log("📊 error:", error);
 
   // Fetch medical documents from API
   const { medicalDocuments, isLoading: isLoadingDocs } = useGetPatientsDocs();
+
+  // Fetch prescriptions from API
+  const { prescriptions: apiPrescriptions, isLoading: isLoadingPrescriptions } =
+    usePatientPrescriptions();
 
   console.log("✅ After useGetPatientsDocs hook");
 
@@ -46,24 +55,76 @@ export default function PatientDashboard() {
   console.log("🔄 Is Loading Docs:", isLoadingDocs);
   console.log("==============================================");
 
+  // Debug: Check raw API response
+  console.log("=== RAW API APPOINTMENTS DEBUG ===");
+  console.log("apiAppointments length:", apiAppointments?.length);
+  console.log("apiAppointments array:", apiAppointments);
+  console.log("Is array?", Array.isArray(apiAppointments));
+
+  if (apiAppointments && apiAppointments.length > 0) {
+    console.log("✅ First raw appointment:", apiAppointments[0]);
+    console.log("✅ First appointment._id:", apiAppointments[0]._id);
+    console.log("✅ First appointment.doctorId:", apiAppointments[0].doctorId);
+    console.log("✅ Type of doctorId:", typeof apiAppointments[0].doctorId);
+    console.log(
+      "✅ First appointment.doctorId._id:",
+      apiAppointments[0].doctorId?._id
+    );
+    console.log("✅ All raw keys:", Object.keys(apiAppointments[0]));
+  } else {
+    console.log("❌ No appointments found or array is empty");
+  }
+  console.log("==================================");
+
+  console.log("⭐⭐⭐ BEFORE MAPPING - apiAppointments:", apiAppointments);
+  console.log("⭐⭐⭐ apiAppointments.length:", apiAppointments?.length);
+
   // Transform API data to match AppointmentCard component props
-  const appointments = apiAppointments.map((appointment) => ({
-    id: appointment._id,
-    doctor:
-      appointment.doctorId?.fullName ||
-      `Dr. ${appointment.doctorId?.firstName} ${appointment.doctorId?.lastName}`,
-    specialty: appointment.doctorId?.specialization || "N/A",
-    time: appointment.startTime,
-    reason: appointment.reasonForVisit,
-    location: appointment.doctorId?.clinicAddress || "Location not available",
-    date: new Date(appointment.appointmentDate).toLocaleDateString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }),
-    status: appointment.status,
-  }));
+  const appointments = apiAppointments.map((appointment) => {
+    console.log("⭐⭐⭐ 🔍 MAPPING appointment:", appointment);
+    console.log("⭐⭐⭐ 🔍 appointment.doctorId:", appointment.doctorId);
+    console.log(
+      "⭐⭐⭐ 🔍 appointment.doctorId?._id:",
+      appointment.doctorId?._id
+    );
+
+    const mapped = {
+      // Keep appointment ID as 'id' for reference
+      id: appointment._id,
+      // Add doctor ID for RescheduleModal to fetch availability
+      doctorId: appointment.doctorId?._id || appointment.doctorId,
+      doctor:
+        appointment.doctorId?.fullName ||
+        `Dr. ${appointment.doctorId?.firstName} ${appointment.doctorId?.lastName}`,
+      specialty: appointment.doctorId?.specialization || "N/A",
+      time: appointment.startTime,
+      reason: appointment.reasonForVisit,
+      location: appointment.doctorId?.clinicAddress || "Location not available",
+      date: new Date(appointment.appointmentDate).toLocaleDateString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+      status: appointment.status,
+    };
+
+    // Debug: Verify doctorId is in the mapped object
+    if (!mapped.doctorId) {
+      console.error("❌❌❌ DOCTOR ID IS MISSING!", {
+        appointmentId: appointment._id,
+        rawDoctorId: appointment.doctorId,
+        extractedId: appointment.doctorId?._id,
+        mappedObject: mapped,
+      });
+    } else {
+      console.log("✅✅✅ DOCTOR ID MAPPED SUCCESSFULLY:", mapped.doctorId);
+    }
+
+    console.log("✅ Mapped appointment object:", mapped);
+    console.log("✅ Mapped doctorId value:", mapped.doctorId);
+    return mapped;
+  });
 
   const healthVitals = [
     {
@@ -120,38 +181,104 @@ export default function PatientDashboard() {
     },
   ];
 
-  const medications = [
-    {
-      id: 1,
-      name: "Lisinopril",
-      dosage: "5mg",
-      frequency: "Once daily in the morning",
-      doctor: "Dr. Alex Johnson",
-      startDate: "Dec 5, 2025",
-      status: "Active",
-      nextDose: "Today at 8:00 AM",
-    },
-    {
-      id: 2,
-      name: "Metformin",
-      dosage: "500mg",
-      frequency: "Twice daily with meals",
-      doctor: "Dr. Evelyn Reed",
-      startDate: "Nov 28, 2025",
-      status: "Active",
-      nextDose: "Today at 12:00 PM",
-    },
-    {
-      id: 3,
-      name: "Vitamin D3",
-      dosage: "1000 IU",
-      frequency: "Once daily",
-      doctor: "Dr. Alex Johnson",
-      startDate: "Nov 15, 2025",
-      status: "Active",
-      nextDose: "Today at 8:00 AM",
-    },
-  ];
+  // Helper function to calculate interval hours based on frequency
+  const getIntervalHours = (frequency) => {
+    if (!frequency) return 24;
+    const lowerFreq = frequency.toLowerCase();
+    if (lowerFreq.includes("once")) return 24;
+    if (lowerFreq.includes("twice")) return 12;
+    if (lowerFreq.includes("three") || lowerFreq.includes("thrice")) return 8;
+    if (lowerFreq.includes("four")) return 6;
+    return 24; // default
+  };
+
+  // Helper function to format time in 12-hour format
+  const formatTime12Hour = (hours, minutes) => {
+    const period = hours >= 12 ? "PM" : "AM";
+    const displayHours = hours % 12 || 12; // Convert 0 to 12, 13-23 to 1-11
+    return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+  };
+
+  // Transform API prescriptions to match component format
+  const medications = apiPrescriptions
+    .map((prescription) => {
+      // Extract time from dosageTiming if it exists (e.g., "Twice daily at 11:34")
+      const timeMatch =
+        prescription.dosageTiming?.match(/at (\d{1,2}):(\d{2})/);
+
+      // Remove time part from frequency to show only "Twice daily"
+      const frequency =
+        prescription.dosageTiming?.replace(/\s+at\s+\d{1,2}:\d{2}/, "") ||
+        "N/A";
+
+      const status =
+        prescription.status.charAt(0).toUpperCase() +
+        prescription.status.slice(1);
+
+      let nextDose = "Today";
+
+      // Only calculate next dose for active prescriptions
+      if (status !== "Completed") {
+        if (timeMatch) {
+          const prescribedHours = parseInt(timeMatch[1], 10);
+          const prescribedMinutes = parseInt(timeMatch[2], 10);
+
+          // Get interval based on frequency
+          const intervalHours = getIntervalHours(frequency);
+
+          // Get current time
+          const now = new Date();
+          const currentHours = now.getHours();
+          const currentMinutes = now.getMinutes();
+
+          // Calculate next dose time
+          let nextHours = prescribedHours;
+          let nextMinutes = prescribedMinutes;
+
+          // Keep adding interval until we find the next dose in the future
+          while (true) {
+            if (
+              nextHours > currentHours ||
+              (nextHours === currentHours && nextMinutes > currentMinutes)
+            ) {
+              break;
+            }
+            nextHours += intervalHours;
+            if (nextHours >= 24) {
+              nextHours -= 24;
+            }
+          }
+
+          nextDose = `Today at ${formatTime12Hour(nextHours, nextMinutes)}`;
+        }
+      } else {
+        // For completed prescriptions, don't show next dose
+        nextDose = "-";
+      }
+
+      return {
+        id: prescription._id,
+        name: prescription.drugName,
+        dosage: prescription.concentration,
+        frequency: frequency,
+        doctor: prescription.prescribedBy?.fullName || "N/A",
+        startDate: prescription.startDate
+          ? new Date(prescription.startDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })
+          : "N/A",
+        status: status,
+        nextDose: nextDose,
+      };
+    })
+    .sort((a, b) => {
+      // Sort by status: Active first, then others
+      if (a.status === "Active" && b.status !== "Active") return -1;
+      if (a.status !== "Active" && b.status === "Active") return 1;
+      return 0;
+    });
 
   // Transform medical documents from API to match MedicalRecordRow props
   const medicalRecords = medicalDocuments.map((doc) => {
@@ -254,7 +381,7 @@ export default function PatientDashboard() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
-              Current Medications
+              prescriptions
             </h2>
             <p className="text-sm text-gray-600">
               Your active prescriptions and dosage schedule
@@ -265,11 +392,21 @@ export default function PatientDashboard() {
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {medications.map((medication) => (
-            <MedicationCard key={medication.id} medication={medication} />
-          ))}
-        </div>
+        {isLoadingPrescriptions ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading prescriptions...</p>
+          </div>
+        ) : medications.length === 0 ? (
+          <div className="text-center py-8 bg-white border border-gray-200 rounded-lg">
+            <p className="text-gray-600">No prescriptions found.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {medications.map((medication) => (
+              <MedicationCard key={medication.id} medication={medication} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Medical Records Section */}
