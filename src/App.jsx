@@ -39,6 +39,7 @@ import PatientSettings from "./features/Patients/PatientSettings.jsx";
 import DoctorSettings from "./features/Doctors/DoctorSettings.jsx";
 import ReschedulePage from "./pages/ReschedulePage.jsx";
 import PatientProfile from "./pages/PatientProfile.jsx";
+import ChatPage from "./pages/ChatPage.jsx";
 
 // import store from "./utils/authStore.js";
 // import * as authKit from "react-auth-kit";
@@ -220,6 +221,10 @@ const router = createBrowserRouter([
   {
     path: "/confirmappointmentpage",
     element: <ConfirmAppointmentPage />,
+  },
+  {
+    path: "/doctor/chat/:roomId",
+    element: <ChatPage />,
   },
 ]);
 

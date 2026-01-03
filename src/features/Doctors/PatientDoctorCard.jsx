@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ArrowLeft,
   User,
@@ -7,8 +7,17 @@ import {
   Phone,
   Home,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuthUser } from "react-auth-kit";
+import { getOrCreateRoom } from "../../services/apiChat";
+import toast from "react-hot-toast";
 
-export default function PatientDoctorCard({ doctor }) {
+export default function PatientDoctorCard({ doctor, patient }) {
+  const navigate = useNavigate();
+  const authUser = useAuthUser();
+  const currentUser = authUser()?.user;
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
+
   const getSpecialtyColor = (specialty) => {
     const colors = {
       "General Practice": "bg-teal-50 text-teal-700 border-teal-200",
@@ -17,6 +26,96 @@ export default function PatientDoctorCard({ doctor }) {
       Oncology: "bg-teal-50 text-teal-700 border-teal-200",
     };
     return colors[specialty] || "bg-gray-50 text-gray-700 border-gray-200";
+  };
+
+  const handleStartChat = async () => {
+    if (!patient) {
+      toast.error("Patient information is missing");
+      return;
+    }
+
+    const authData = authUser();
+    const userId =
+      authData?.user?.userId ||
+      authData?.user?._id ||
+      authData?.user?.id ||
+      authData?.userId ||
+      authData?._id ||
+      authData?.id;
+    setIsCreatingRoom(true);
+    try {
+      console.log("Patient object:", patient);
+
+      // Try to get patient ID from various possible fields
+      const patientId =
+        patient._id ||
+        patient.id ||
+        patient.patientId ||
+        patient.userId ||
+        (typeof patient === "string" ? patient : null);
+
+      if (!patientId) {
+        console.error("Could not find patient ID in:", patient);
+        toast.error("Patient ID is missing");
+        setIsCreatingRoom(false);
+        return;
+      }
+
+      // Prepare patient data with ID and name
+      const patientData = {
+        patientId: patientId,
+        name:
+          patient.firstName && patient.lastName
+            ? `${patient.firstName} ${patient.lastName}`
+            : patient.name || "Patient",
+      };
+
+      console.log("Creating room with:", {
+        doctorBId: doctor.id,
+        patientData: patientData,
+      });
+
+      // Create or get existing room
+      const response = await getOrCreateRoom(doctor.id, patientData);
+
+      const roomId = response.room?._id || response.roomId;
+
+      if (!roomId) {
+        toast.error("Failed to create chat room");
+        return;
+      }
+
+      // Navigate to chat page with room ID and doctor info
+      navigate(`/doctor/chat/${roomId}`, {
+        state: {
+          patient,
+          peerDoctor: {
+            _id: doctor.id,
+            firstName: doctor.name.replace("Dr. ", "").split(" ")[0],
+            lastName: doctor.name
+              .replace("Dr. ", "")
+              .split(" ")
+              .slice(1)
+              .join(" "),
+            specialization: doctor.specialty,
+            profilePicture: doctor.profilePicture,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error creating room:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Failed to start chat. Please try again.";
+
+      toast.error(errorMessage);
+    } finally {
+      setIsCreatingRoom(false);
+    }
   };
 
   return (
@@ -55,9 +154,13 @@ export default function PatientDoctorCard({ doctor }) {
 
       {/* Action Buttons */}
       <div className="flex gap-2 mb-4 pb-4 border-b border-gray-100">
-        <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700">
+        <button
+          onClick={handleStartChat}
+          disabled={isCreatingRoom}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           <MessageSquare className="w-4 h-4" />
-          Message
+          {isCreatingRoom ? "Opening..." : "Message"}
         </button>
         <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700">
           <Phone className="w-4 h-4" />
