@@ -1,7 +1,7 @@
 import SideCalendar from "../features/Doctors/SideCalendar";
 import TodaysOverview from "../features/Doctors/TodaysOverView";
 import TodaySchedule from "../features/Doctors/TodaysSchedule";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../ui/Button";
 import { useDoctorAppointmentsByDate } from "../features/Doctors/useDoctorAppointmentsByDate";
 import { useDoctorInfo } from "../features/Doctors/useDoctorInfo";
@@ -13,6 +13,41 @@ function DoctorDashBoard() {
 
   // Fetch doctor info
   const { doctorInfo, isLoading: isDoctorLoading } = useDoctorInfo();
+
+  // Log all doctor information when it's loaded
+  useEffect(() => {
+    if (!isDoctorLoading && doctorInfo) {
+      console.log("========================================");
+      console.log("🏥 DOCTOR DASHBOARD - FULL DOCTOR INFO");
+      console.log("========================================");
+      console.log("📋 Complete Doctor Object:", doctorInfo);
+      console.log("----------------------------------------");
+      console.log("🆔 Doctor ID:", doctorInfo._id || doctorInfo.id);
+      console.log("👤 First Name:", doctorInfo.firstName);
+      console.log("👤 Last Name:", doctorInfo.lastName);
+      console.log("📧 Email:", doctorInfo.email);
+      console.log("📞 Phone:", doctorInfo.phone);
+      console.log("🏥 Specialization:", doctorInfo.specialization);
+      console.log("📜 License Number:", doctorInfo.licenseNumber);
+      console.log("💳 National ID:", doctorInfo.nationalId);
+      console.log("🎂 Date of Birth:", doctorInfo.dateOfBirth);
+      console.log("⚧ Gender:", doctorInfo.gender);
+      console.log("📍 Address:", doctorInfo.address);
+      console.log("🏢 Clinic Info:", doctorInfo.clinicInfo);
+      console.log("💰 Consultation Fee:", doctorInfo.consultationFee);
+      console.log("🎓 Experience Years:", doctorInfo.experienceYears);
+      console.log("📝 Bio:", doctorInfo.bio);
+      console.log("🔐 Role:", doctorInfo.role);
+      console.log("✅ Is Approved:", doctorInfo.isApproved);
+      console.log("🖼️ Profile Picture:", doctorInfo.profilePicture);
+      console.log("📄 Documents:", doctorInfo.documents);
+      console.log("⭐ Rating:", doctorInfo.rating);
+      console.log("📊 Total Patients:", doctorInfo.totalPatients);
+      console.log("📅 Created At:", doctorInfo.createdAt);
+      console.log("🔄 Updated At:", doctorInfo.updatedAt);
+      console.log("========================================");
+    }
+  }, [doctorInfo, isDoctorLoading]);
 
   console.log("👨‍⚕️ DoctorDashBoard - doctorInfo:", doctorInfo);
   console.log("👨‍⚕️ DoctorDashBoard - isDoctorLoading:", isDoctorLoading);

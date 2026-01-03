@@ -42,6 +42,18 @@ export default function PatientDoctorCard({ doctor, patient }) {
       authData?.userId ||
       authData?._id ||
       authData?.id;
+
+    console.log("========================================");
+    console.log("🚀 PatientDoctorCard - handleStartChat");
+    console.log("========================================");
+    console.log("📝 Full authData:", authData);
+    console.log("👤 Current User (ME - Dr. Amr Saeed):", authData?.user);
+    console.log("🆔 My ID (userId):", userId);
+    console.log("👨‍⚕️ Peer Doctor (Dr. Mina Malak):", doctor);
+    console.log("🆔 Peer Doctor ID:", doctor.id);
+    console.log("👥 Patient:", patient);
+    console.log("========================================");
+
     setIsCreatingRoom(true);
     try {
       console.log("Patient object:", patient);

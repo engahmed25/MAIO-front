@@ -6,10 +6,30 @@ function ChatMessageItem({ message, peerDoctor, currentDoctor }) {
   const [imageError, setImageError] = useState(false);
   const isRead = message.isRead;
 
+  // Get current doctor ID - prioritize _id from database over userId from JWT
   const currentDoctorId =
-    currentDoctor?.userId || currentDoctor?._id || currentDoctor?.id;
-  const isOwnMessage =
-    (message.sender?._id || message.senderId) === currentDoctorId;
+    currentDoctor?._id || currentDoctor?.userId || currentDoctor?.id;
+
+  const messageSenderId = message.sender?._id || message.senderId;
+
+  // Debug logging
+  console.log("========================================");
+  console.log("🔍 ChatMessageItem - Message Sender Check");
+  console.log("========================================");
+  console.log("📧 Message Sender ID:", messageSenderId);
+  console.log("👤 Current Doctor ID:", currentDoctorId);
+  console.log("📝 Message Content:", message.content?.substring(0, 50));
+  console.log("👨‍⚕️ Message Sender Object:", message.sender);
+  console.log("👤 Current Doctor Object:", currentDoctor);
+  console.log("🔍 Current Doctor ID Sources:", {
+    _id: currentDoctor?._id,
+    userId: currentDoctor?.userId,
+    id: currentDoctor?.id,
+  });
+  console.log("✅ Is Own Message:", messageSenderId === currentDoctorId);
+  console.log("========================================");
+
+  const isOwnMessage = messageSenderId === currentDoctorId;
   const sender = isOwnMessage ? currentDoctor : peerDoctor;
   const hasAttachment = message.attachments && message.attachments.length > 0;
 
@@ -42,18 +62,16 @@ function ChatMessageItem({ message, peerDoctor, currentDoctor }) {
           isOwnMessage ? "items-end" : "items-start"
         } max-w-[70%] md:max-w-md`}
       >
-        {/* Sender Name (only for received messages) */}
-        {!isOwnMessage && (
-          <span className="text-xs text-gray-500 mb-1 px-1">
-            Dr. {getDoctorName(sender)}
-          </span>
-        )}
+        {/* Sender Name - Show for all messages */}
+        <span className="text-xs text-gray-500 mb-1 px-1">
+          Dr. {getDoctorName(sender)}
+        </span>
 
         {/* Message Content */}
         <div
           className={`rounded-2xl px-4 py-2 shadow-sm ${
             isOwnMessage
-              ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-sm"
+              ? "bg-blue-500 text-white rounded-br-sm"
               : "bg-white text-gray-900 border border-gray-200 rounded-bl-sm"
           }`}
         >

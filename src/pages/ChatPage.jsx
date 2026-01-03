@@ -10,6 +10,7 @@ import { chatSocket } from "../features/RealTime/socket.js";
 import ChatHeader from "../features/RealTime/ChatHeader.jsx";
 import ChatMessageList from "../features/RealTime/ChatMessageList.jsx";
 import ChatMessageInput from "../features/RealTime/ChatMessageInput.jsx";
+import { useDoctorInfo } from "../features/Doctors/useDoctorInfo";
 
 //
 
@@ -24,19 +25,35 @@ function ChatPage() {
   // Get patient and peer doctor from location state
   const { patient, peerDoctor: initialPeerDoctor } = location.state || {};
 
-  // Get current user ID (using userId field)
-  const currentUserId =
-    currentUser?.userId || currentUser?._id || currentUser?.id;
+  // Fetch current doctor's full info from database to get the real _id
+  const { doctorInfo, isLoading: isDoctorInfoLoading } = useDoctorInfo();
+
+  // Get current user ID - Use the real doctor _id from database, not JWT userId
+  const currentUserId = doctorInfo?._id || currentUser?._id || currentUser?.id;
 
   // State
   const [peerDoctor, setPeerDoctor] = useState(initialPeerDoctor || null);
   const [patientData, setPatientData] = useState(patient || null);
 
-  console.log("ChatPage - roomId:", roomId);
-  console.log("ChatPage - currentUser:", currentUser);
-  console.log("ChatPage - currentUserId:", currentUserId);
-  console.log("ChatPage - initialPeerDoctor:", initialPeerDoctor);
-  console.log("ChatPage - patient:", patient);
+  console.log("========================================");
+  console.log("💬 ChatPage - Initialization");
+  console.log("========================================");
+  console.log("🆔 Room ID:", roomId);
+  console.log("👤 Current User (JWT):", currentUser);
+  console.log("👨‍⚕️ Current Doctor Info (Database):", doctorInfo);
+  console.log(
+    "🆔 Current User ID (Computed - Using Real Doctor _id):",
+    currentUserId
+  );
+  console.log("🔍 ID Sources:", {
+    doctorInfoId: doctorInfo?._id,
+    jwtUserId: currentUser?.userId,
+    currentUser_id: currentUser?._id,
+    currentUserId: currentUser?.id,
+  });
+  console.log("👨‍⚕️ Initial Peer Doctor:", initialPeerDoctor);
+  console.log("👥 Patient:", patient);
+  console.log("========================================");
 
   // 1️⃣ Fetch initial messages via REST
   const { data: messages = [], isLoading } = useMessagesQuery(roomId);
@@ -122,9 +139,11 @@ function ChatPage() {
       roomId,
       content: text,
       messageType: "text",
+      senderId: currentUserId, // Explicitly include sender ID
     };
 
     console.log("📤 Emitting send_message event:", messageData);
+    console.log("📤 Sender ID being sent:", currentUserId);
 
     chatSocket.emit("send_message", messageData);
 
@@ -150,6 +169,15 @@ function ChatPage() {
     );
   }
 
+  // Show loading while fetching doctor info
+  if (isDoctorInfoLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
@@ -163,7 +191,7 @@ function ChatPage() {
       <ChatMessageList
         messages={messages}
         currentDoctorId={currentUserId}
-        currentDoctor={currentUser}
+        currentDoctor={doctorInfo || currentUser}
         peerDoctor={peerDoctor}
         typingUsers={typingUsers}
         isLoading={isLoading}
