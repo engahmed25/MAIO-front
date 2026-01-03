@@ -40,6 +40,7 @@ import DoctorSettings from "./features/Doctors/DoctorSettings.jsx";
 import ReschedulePage from "./pages/ReschedulePage.jsx";
 import PatientProfile from "./pages/PatientProfile.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
+import DoctorCalendarPage from "./pages/DoctorCalendarPage.jsx";
 
 // import store from "./utils/authStore.js";
 // import * as authKit from "react-auth-kit";
@@ -158,6 +159,7 @@ const router = createBrowserRouter([
     children: [
       { path: "dashboard", element: <DoctorDashBoard /> },
       { path: "patientList", element: <PatientList /> },
+      { path: "calendar", element: <DoctorCalendarPage /> },
       {
         path: "consulting-doctors",
         element: <ConsultingDoctors />,

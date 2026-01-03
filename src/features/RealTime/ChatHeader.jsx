@@ -5,6 +5,25 @@ import { useNavigate } from "react-router-dom";
 function ChatHeader({ peerDoctor, patient, isOnline }) {
   const navigate = useNavigate();
 
+  // Get profile picture URL
+  const getProfilePicture = (doctor) => {
+    const picture = doctor?.profilePicture;
+    if (picture) {
+      // If it's already a full URL, use it
+      if (picture.startsWith("http://") || picture.startsWith("https://")) {
+        return picture;
+      }
+      // Otherwise, construct the URL from backend
+      return `${
+        import.meta.env.VITE_API_BASE_URL ||
+        "https://tjdlts3w-5000.uks1.devtunnels.ms"
+      }/${picture.replace(/\\/g, "/")}`;
+    }
+    return null;
+  };
+
+  const peerProfilePic = getProfilePicture(peerDoctor);
+
   return (
     <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
       {/* Left Section - Doctor Info */}
@@ -18,8 +37,25 @@ function ChatHeader({ peerDoctor, patient, isOnline }) {
 
         {/* Doctor Avatar */}
         <div className="relative">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
-            {peerDoctor?.firstName?.charAt(0)?.toUpperCase() || "D"}
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md overflow-hidden">
+            {peerProfilePic ? (
+              <img
+                src={peerProfilePic}
+                alt={peerDoctor?.firstName || "Doctor"}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to initials if image fails to load
+                  e.target.style.display = "none";
+                  e.target.parentElement.innerHTML = `<span class="text-white font-semibold text-sm">${
+                    peerDoctor?.firstName?.charAt(0)?.toUpperCase() || "D"
+                  }</span>`;
+                }}
+              />
+            ) : (
+              <span>
+                {peerDoctor?.firstName?.charAt(0)?.toUpperCase() || "D"}
+              </span>
+            )}
           </div>
           {/* Online Status */}
           {isOnline && (

@@ -36,10 +36,20 @@ export function useDoctorMonthAppointments(currentMonth) {
 
     // Build a map of day -> hasAppointments
     const appointmentsByDay = {};
+    const allAppointments = [];
+
     queries.forEach((query, index) => {
-        const { day } = datesToFetch[index];
+        const { day, formattedDate } = datesToFetch[index];
         if (query.data?.totalAppointments > 0) {
             appointmentsByDay[day] = true;
+        }
+        // Collect all appointments from all queries and add the date to each appointment
+        if (query.data?.appointments) {
+            const appointmentsWithDate = query.data.appointments.map(apt => ({
+                ...apt,
+                appointmentDate: formattedDate // Add the date this appointment is scheduled for
+            }));
+            allAppointments.push(...appointmentsWithDate);
         }
     });
 
@@ -47,6 +57,7 @@ export function useDoctorMonthAppointments(currentMonth) {
 
     return {
         appointmentsByDay,
+        allAppointments,
         isLoading,
     };
 }

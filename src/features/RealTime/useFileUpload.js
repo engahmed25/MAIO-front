@@ -15,18 +15,36 @@ export const useFileUpload = (roomId) => {
     try {
       const response = await uploadChatFiles(roomId, files, message);
 
-      // Update local cache
-      queryClient.setQueryData(["chat-messages", roomId], (old = []) => [
-        ...old,
-        response.data,
-      ]);
+      console.log("📤 File upload response:", response);
 
-      // Emit via socket for real-time delivery to other users
-      chatSocket.emit("send_message", {
-        roomId,
-        content: message,
-        attachments: response.data.attachments,
-        messageType: "file",
+      // The backend should emit via socket, so we don't need to emit here
+      // Just update local cache with the properly formatted message
+      queryClient.setQueryData(["chat-messages", roomId], (old = []) => {
+        // Check if message already exists to prevent duplicates
+        const messageId = response.data.id || response.data._id;
+        const exists = old.some((m) => (m.id || m._id) === messageId);
+
+        if (exists) {
+          console.log("⚠️ Message already exists in cache, skipping");
+          return old;
+        }
+
+        // Format the message to match the expected structure
+        const formattedMessage = {
+          _id: response.data.id || response.data._id,
+          id: response.data.id || response.data._id,
+          roomId: response.data.roomId,
+          sender: response.data.sender,
+          senderId: response.data.sender?._id || response.data.sender,
+          content: response.data.content,
+          createdAt: response.data.createdAt,
+          isRead: response.data.isRead,
+          attachments: response.data.attachments,
+          messageType: response.data.messageType,
+        };
+
+        console.log("✅ Adding file message to cache:", formattedMessage);
+        return [...old, formattedMessage];
       });
 
       return response;

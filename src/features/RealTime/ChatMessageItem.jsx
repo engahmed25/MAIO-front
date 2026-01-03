@@ -41,20 +41,72 @@ function ChatMessageItem({ message, peerDoctor, currentDoctor }) {
     return doctor?.name || "Unknown";
   };
 
+  // Get profile picture URL
+  const getProfilePicture = (doctor) => {
+    const picture = doctor?.profilePicture;
+    if (picture) {
+      // If it's already a full URL, use it
+      if (picture.startsWith("http://") || picture.startsWith("https://")) {
+        return picture;
+      }
+      // Otherwise, construct the URL from backend
+      return `${
+        import.meta.env.VITE_API_BASE_URL ||
+        "https://tjdlts3w-5000.uks1.devtunnels.ms"
+      }/${picture.replace(/\\/g, "/")}`;
+    }
+    return null;
+  };
+
+  const senderProfilePic = getProfilePicture(sender);
+
+  // Get attachment URL with full path
+  const getAttachmentUrl = (url) => {
+    if (!url) return null;
+    // If it's already a full URL, use it
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    // Otherwise, construct the URL from backend
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL ||
+      "https://tjdlts3w-5000.uks1.devtunnels.ms";
+    // Remove leading slash if present to avoid double slashes
+    const cleanUrl = url.startsWith("/") ? url.substring(1) : url;
+    return `${baseUrl}/${cleanUrl}`;
+  };
+
   return (
     <div
       className={`flex gap-2 mb-4 ${
         isOwnMessage ? "flex-row-reverse" : "flex-row"
       }`}
     >
-      {/* Avatar */}
-      {!isOwnMessage && (
-        <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-          {sender?.firstName?.charAt(0)?.toUpperCase() ||
-            sender?.name?.charAt(0)?.toUpperCase() ||
-            "D"}
-        </div>
-      )}
+      {/* Avatar - Show for both own and peer messages */}
+      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-gradient-to-br from-blue-400 to-blue-600">
+        {senderProfilePic ? (
+          <img
+            src={senderProfilePic}
+            alt={getDoctorName(sender)}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Fallback to initials if image fails to load
+              e.target.style.display = "none";
+              e.target.parentElement.innerHTML = `<span class="text-white text-xs font-semibold">${
+                sender?.firstName?.charAt(0)?.toUpperCase() ||
+                sender?.name?.charAt(0)?.toUpperCase() ||
+                "D"
+              }</span>`;
+            }}
+          />
+        ) : (
+          <span className="text-white text-xs font-semibold">
+            {sender?.firstName?.charAt(0)?.toUpperCase() ||
+              sender?.name?.charAt(0)?.toUpperCase() ||
+              "D"}
+          </span>
+        )}
+      </div>
 
       {/* Message Bubble */}
       <div
@@ -79,32 +131,43 @@ function ChatMessageItem({ message, peerDoctor, currentDoctor }) {
           {hasAttachment &&
             message.attachments.map((attachment, idx) => {
               if (attachment.type === "image" && !imageError) {
+                const imageUrl = getAttachmentUrl(attachment.url);
                 return (
-                  <div key={idx} className="mb-2 rounded-lg overflow-hidden">
+                  <div
+                    key={idx}
+                    className="mb-2 rounded-lg overflow-hidden max-w-xs"
+                  >
                     <img
-                      src={attachment.url}
-                      alt="attachment"
+                      src={imageUrl}
+                      alt={attachment.filename || "attachment"}
                       className="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                      onClick={() => window.open(attachment.url, "_blank")}
-                      onError={() => setImageError(true)}
+                      onClick={() => window.open(imageUrl, "_blank")}
+                      onError={(e) => {
+                        console.error("Image failed to load:", imageUrl);
+                        setImageError(true);
+                      }}
                     />
                   </div>
                 );
               }
 
-              if (attachment.type === "file") {
+              if (
+                attachment.type === "file" ||
+                attachment.type === "document"
+              ) {
+                const fileUrl = getAttachmentUrl(attachment.url);
                 return (
                   <a
                     key={idx}
-                    href={attachment.url}
-                    download
+                    href={fileUrl}
+                    download={attachment.filename}
                     className={`flex items-center gap-2 mb-2 p-2 rounded-lg ${
                       isOwnMessage ? "bg-blue-600" : "bg-gray-100"
                     }`}
                   >
                     <Download className="w-4 h-4" />
                     <span className="text-sm truncate">
-                      {attachment.name || "File"}
+                      {attachment.filename || "File"}
                     </span>
                   </a>
                 );
@@ -113,7 +176,7 @@ function ChatMessageItem({ message, peerDoctor, currentDoctor }) {
             })}
 
           {/* Text Content */}
-          {message.content && (
+          {message.content && message.content.trim() !== "" && (
             <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
               {message.content}
             </p>

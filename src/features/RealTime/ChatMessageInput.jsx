@@ -57,7 +57,7 @@ function ChatMessageInput({ onSend, onFileUpload, disabled, isUploading }) {
       )}
 
       {/* Input Area */}
-      <div className="px-4 py-3 flex items-end gap-2">
+      <div className="px-4 py-3 flex items-center  gap-2">
         {/* Attachment Buttons */}
         <div className="flex gap-1">
           <button
@@ -79,7 +79,7 @@ function ChatMessageInput({ onSend, onFileUpload, disabled, isUploading }) {
         </div>
 
         {/* Text Input */}
-        <div className="flex-1 relative">
+        <div className="flex-1 flex relative">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}

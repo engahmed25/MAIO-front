@@ -36,9 +36,19 @@ export const useChatSocket = (roomId, currentUserId) => {
 
       // Update React Query cache
       queryClient.setQueryData(["chat-messages", roomId], (old = []) => {
-        // Avoid duplicates
-        const exists = old.some((m) => m.id === msg.id);
-        if (exists) return old;
+        // Avoid duplicates - check both id and _id
+        const messageId = msg.id || msg._id;
+        const exists = old.some((m) => {
+          const existingId = m.id || m._id;
+          return existingId === messageId;
+        });
+
+        if (exists) {
+          console.log("⚠️ Message already exists, skipping duplicate:", messageId);
+          return old;
+        }
+
+        console.log("✅ Adding new message to cache:", msg);
         return [...old, msg];
       });
 

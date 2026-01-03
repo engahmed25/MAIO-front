@@ -47,11 +47,14 @@ export default function PatientDoctorCard({ doctor, patient }) {
     console.log("🚀 PatientDoctorCard - handleStartChat");
     console.log("========================================");
     console.log("📝 Full authData:", authData);
-    console.log("👤 Current User (ME - Dr. Amr Saeed):", authData?.user);
+    console.log("👤 Current User (Logged in doctor):", authData?.user);
+    console.log("🔑 JWT userId:", authData?.user?.userId);
     console.log("🆔 My ID (userId):", userId);
-    console.log("👨‍⚕️ Peer Doctor (Dr. Mina Malak):", doctor);
-    console.log("🆔 Peer Doctor ID:", doctor.id);
+    console.log("👨‍⚕️ Peer Doctor (Doctor I want to message):", doctor);
+    console.log("🆔 Peer Doctor ID being sent:", doctor.id);
     console.log("👥 Patient:", patient);
+    console.log("⚠️ IMPORTANT: Sending doctorBId =", doctor.id);
+    console.log("⚠️ Backend will identify me from JWT token");
     console.log("========================================");
 
     setIsCreatingRoom(true);
