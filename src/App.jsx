@@ -29,12 +29,18 @@ import UploadPatientsFiles from "./pages/UploadPatientsFiles.jsx";
 import EmailConfirmation from "./pages/EmailConfirmation.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import DoctorsBySpecialization from "./pages/DoctorsBySpecialization.jsx";
-// import { MedicalHistory as MedicalHistoryComponent } from "./features/Patients/MedicalHistory.jsx";
+import { MedicalHistory as MedicalHistoryComponent } from "./features/Patients/MedicalHistory.jsx";
 import PatientInfo from "./features/Patients/PatienInfo/PatientInfo.jsx";
 
 import PaymentPage from "./pages/PaymentPage.jsx";
 import ConfirmAppointmentPage from "./pages/ConfirmAppointmentPage.jsx";
 import PaymentConfirmation from "./features/paymentMethods/PaymentConfirmation.jsx";
+import PatientSettings from "./features/Patients/PatientSettings.jsx";
+import DoctorSettings from "./features/Doctors/DoctorSettings.jsx";
+import ReschedulePage from "./pages/ReschedulePage.jsx";
+import PatientProfile from "./pages/PatientProfile.jsx";
+import ChatPage from "./pages/ChatPage.jsx";
+import DoctorCalendarPage from "./pages/DoctorCalendarPage.jsx";
 
 // import store from "./utils/authStore.js";
 // import * as authKit from "react-auth-kit";
@@ -81,10 +87,7 @@ const router = createBrowserRouter([
     path: "/register",
     element: <Register />,
   },
-  // {
-  //   path: "/patient/medical-history/:patientId",
-  //   element: <MedicalHistoryComponent />,
-  // },
+
   {
     path: "/login",
     element: <Login />,
@@ -117,7 +120,7 @@ const router = createBrowserRouter([
   //   ),
   // },
   {
-    path: "/patient/medical-history",
+    path: "/patient/medical-form",
     element: (
       <ProtectedRoute allowedRoles={["patient", "doctor"]}>
         <MedicalHistory />
@@ -160,6 +163,19 @@ const router = createBrowserRouter([
     children: [
       { path: "dashboard", element: <DoctorDashBoard /> },
       { path: "patientList", element: <PatientList /> },
+      { path: "calendar", element: <DoctorCalendarPage /> },
+      {
+        path: "consulting-doctors",
+        element: <ConsultingDoctors />,
+      },
+      {
+        path: "patient/:patientId",
+        element: <PatientProfile />,
+      },
+      {
+        path: "settings",
+        element: <DoctorSettings />,
+      },
     ],
   },
 
@@ -176,16 +192,26 @@ const router = createBrowserRouter([
         path: "/patient/upload-files",
         element: <UploadPatientsFiles />,
       },
+      {
+        path: "/patient/medical-history",
+        element: <MedicalHistoryComponent />,
+      },
+      {
+        path: "/patient/settings",
+        element: <PatientSettings />,
+      },
+
+      {
+        path: "/patient/reschedule/:doctorId",
+        element: <ReschedulePage />,
+      },
     ],
   },
   {
     path: "/wait",
     element: <WaitAdminApproval />,
   },
-  {
-    path: "/consulting-doctors",
-    element: <ConsultingDoctors />,
-  },
+
   {
     path: "/patient/patientInfo",
     element: <PatientInfo />,
@@ -201,6 +227,10 @@ const router = createBrowserRouter([
   {
     path: "/confirmappointmentpage",
     element: <ConfirmAppointmentPage />,
+  },
+  {
+    path: "/doctor/chat/:roomId",
+    element: <ChatPage />,
   },
 ]);
 

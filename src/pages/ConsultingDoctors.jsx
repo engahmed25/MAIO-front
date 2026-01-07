@@ -1,60 +1,101 @@
 import { ArrowLeft } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuthUser } from "react-auth-kit";
 import CareTeamSummary from "../features/Doctors/CareTeamSummary";
 import NavigationButtons from "../features/Doctors/NavigationButtons";
 import PatientDoctorCard from "../features/Doctors/PatientDoctorCard";
 import PatientInfoBanner from "../features/Doctors/PatientInfoBanner";
+import { usePatientDoctors } from "../features/Patients/usePatientDoctors";
+import { usePatientPublicProfile } from "../features/Patients/usePatientPublicProfile";
+import Spinner from "../ui/Spinner";
 
 // Main ConsultingDoctors Component
 export default function ConsultingDoctors() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const authUser = useAuthUser();
+  const user = authUser()?.user;
+
+  // Get patientId from navigation state or from the authenticated user
+  const patientId = location.state?.patientId || user?.patientId;
+
+  // Fetch patient's doctors using the custom hook
+  const { doctors, isLoading, error } = usePatientDoctors(patientId);
+
+  // Fetch patient public profile
+  const {
+    patient,
+    isLoading: isLoadingPatient,
+    error: patientError,
+  } = usePatientPublicProfile(patientId);
+
   const patientInfo = {
-    name: "John Doe",
-    id: "#PAT-2024-001",
+    name:
+      patient?.firstName && patient?.lastName
+        ? `${patient.firstName} ${patient.lastName}`
+        : "Patient",
+    id: patientId || "N/A",
   };
 
-  const doctors = [
-    {
-      id: 1,
-      name: "Dr. Alex Johnson",
-      initials: "DAJ",
-      specialty: "General Practice",
-      location: "Main Clinic, Floor 1",
-    },
-    {
-      id: 2,
-      name: "Dr. Sarah Chen",
-      initials: "DSC",
-      specialty: "Neurology",
-      location: "Specialty Building A",
-    },
-    {
-      id: 3,
-      name: "Dr. Michael Ortiz",
-      initials: "DMO",
-      specialty: "Pediatrics",
-      location: "Children's Wing, 3rd Floor",
-    },
-    {
-      id: 4,
-      name: "Dr. Lisa Wong",
-      initials: "DLW",
-      specialty: "Oncology",
-      location: "Cancer Center, Level 2",
-    },
-  ];
-
   const careTeamInfo = {
-    totalDoctors: 4,
-    primaryPhysician: "Dr. Evelyn Reed",
-    lastUpdated: "Today at 10:30 AM",
+    totalDoctors: doctors.length,
+    primaryPhysician:
+      doctors.length > 0
+        ? `Dr. ${doctors[0].firstName} ${doctors[0].lastName}`
+        : "N/A",
+    lastUpdated:
+      "Today at " +
+      new Date().toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
   };
 
   const handleBackToProfile = () => {
-    console.log("Navigate to patient profile");
+    if (patientId) {
+      navigate(`/doctor/patient/${patientId}`);
+    } else {
+      navigate(-1); // Go back to previous page
+    }
   };
 
   const handleReturnToDashboard = () => {
-    console.log("Navigate to dashboard");
+    navigate("/doctor/dashboard");
   };
+
+  // Transform API doctor data to match PatientDoctorCard format
+  const transformedDoctors = doctors.map((doctor) => ({
+    id: doctor._id,
+    name: `Dr. ${doctor.firstName} ${doctor.lastName}`,
+    initials: `${doctor.firstName.charAt(0)}${doctor.lastName.charAt(0)}`,
+    specialty: doctor.specialization,
+    location: doctor.clinicAddress,
+    profilePicture: doctor.profilePicture,
+    ratePerSession: doctor.ratePerSession,
+    rating: doctor.rating,
+    yearsOfExperience: doctor.yearsOfExperience,
+  }));
+
+  if (isLoading || isLoadingPatient) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (error || patientError) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+            <p className="font-medium">Error loading data</p>
+            <p className="text-sm">{error?.message || patientError?.message}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -79,13 +120,26 @@ export default function ConsultingDoctors() {
         <PatientInfoBanner
           patientName={patientInfo.name}
           patientId={patientInfo.id}
+          profilePicture={patient?.profilePicture}
         />
 
         {/* Doctors Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {doctors.map((doctor) => (
-            <PatientDoctorCard key={doctor.id} doctor={doctor} />
-          ))}
+          {transformedDoctors.length > 0 ? (
+            transformedDoctors.map((doctor) => (
+              <PatientDoctorCard
+                key={doctor.id}
+                doctor={doctor}
+                patient={patient}
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-500 text-lg">
+                No doctors found for this patient
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Care Team Summary */}

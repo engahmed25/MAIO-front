@@ -83,9 +83,87 @@ export async function createReservation(doctorId, date, startTime, endTime, reas
     }
 }
 
+// Get doctor's appointments for a specific date
+export async function getDoctorAppointmentsByDate(date) {
+    try {
+        const res = await axiosClient.get(`${backendURL}/api/doctors/me/appointments/date/${date}`);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
 
+// Get current doctor's info
+export async function getDoctorInfo() {
+    try {
+        const res = await axiosClient.get(`${backendURL}/api/doctors/me`);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
 
+// Get patients under care of the current doctor
+export async function getPatientsByDoctor() {
+    const res = await axiosClient.get(`${backendURL}/api/doctors/me/patients`);
+    console.log("getPatientsByDoctor response:", res.data);
+    return res.data;
+}
 
+// Get current doctor profile/settings
+export async function getDoctorSettings() {
+    const response = await axiosClient.get(`${backendURL}/api/doctors/me`);
+    return response.data;
+}
+
+// Update current doctor profile/settings
+export async function updateDoctorSettings(data) {
+    const response = await axiosClient.patch(`${backendURL}/api/doctors/me`, data);
+    return response.data;
+}
+
+// Update doctor profile picture
+export async function updateDoctorProfilePicture(file) {
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+
+    const response = await axiosClient.patch(
+        `${backendURL}/api/doctors/me/profile-picture`,
+        formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    );
+    return response.data;
+}
+
+// Create prescription for a patient
+export async function createPrescription(patientId, prescriptionData) {
+    const response = await axiosClient.post(
+        `${backendURL}/api/doctors/patients/${patientId}/prescriptions`,
+        prescriptionData
+    );
+    return response.data;
+}
+
+// Update prescription for a patient
+export async function updatePrescription(patientId, prescriptionId, prescriptionData) {
+    const response = await axiosClient.patch(
+        `${backendURL}/api/doctors/patients/${patientId}/prescriptions/${prescriptionId}`,
+        prescriptionData
+    );
+    return response.data;
+}
+
+// Get prescriptions for a patient
+export async function getPatientPrescriptions(patientId) {
+    const response = await axiosClient.get(
+        `${backendURL}/api/doctors/patients/${patientId}/prescriptions`
+    );
+    return response.data;
+}
 
 /*
 get all doctors

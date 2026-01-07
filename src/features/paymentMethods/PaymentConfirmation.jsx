@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import StripeProvider from "./Stripe/StripeProvider";
 import ConfirmAppointmentPage from "../../pages/ConfirmAppointmentPage";
 import CardPaymentFormPage from "../../pages/CardPaymentFormPage";
-import { usePaymentIntent } from "./usePaymentIntent";
+import { useCreatePaymentIntent } from "./useCreatePaymentIntent";
 
 function PaymentConfirmation() {
   const location = useLocation();
@@ -16,7 +16,6 @@ function PaymentConfirmation() {
     clinicLocation,
     price,
     payMethod,
-    reservationId,
   } = location.state || {};
 
   const {
@@ -32,6 +31,63 @@ function PaymentConfirmation() {
       createPaymentIntent({ reservationId });
     }
   }, [payMethod, reservationId, data, createPaymentIntent]);
+  const reservationId = location.state?.reservationId;
+  const appointmentCode = location.state?.appointmentCode;
+  const [clientSecret, setClientSecret] = useState("");
+  const [paymentIntentId, setPaymentIntentId] = useState("");
+  const [intentError, setIntentError] = useState(null);
+
+  const { createIntent, isCreating } = useCreatePaymentIntent();
+
+  useEffect(() => {
+    let isMounted = true;
+    setIntentError(null);
+
+    if (payMethod === "debitCard" && reservationId) {
+      createIntent(reservationId)
+        .then((data) => {
+          if (!isMounted) return;
+          setClientSecret(data?.clientSecret || "");
+          setPaymentIntentId(data?.paymentIntentId || "");
+        })
+        .catch((error) => {
+          if (!isMounted) return;
+          const message =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Failed to create payment intent";
+          setIntentError(message);
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [createIntent, payMethod, reservationId]);
+
+  const appointmentData = useMemo(
+    () => ({
+      drName,
+      speciality,
+      date,
+      time,
+      clinicName,
+      clinicLocation,
+      price,
+      reservationId,
+      appointmentCode,
+    }),
+    [
+      appointmentCode,
+      clinicLocation,
+      clinicName,
+      date,
+      drName,
+      price,
+      reservationId,
+      speciality,
+      time,
+    ]
+  );
 
   if (!payMethod) return null;
 
@@ -90,6 +146,23 @@ function PaymentConfirmation() {
                   clinicLocation,
                   price,
                 }}
+          {intentError && (
+            <p className="text-red-600 text-center py-3">{intentError}</p>
+          )}
+
+          {!reservationId && (
+            <p className="text-red-600 text-center py-3">
+              Missing reservation information. Please go back and try again.
+            </p>
+          )}
+
+          {reservationId && clientSecret ? (
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+              <CardPaymentFormPage
+                clientSecret={clientSecret}
+                paymentIntentId={paymentIntentId}
+                reservationId={reservationId}
+                appointmentData={appointmentData}
               />
             </div>
           ) : isError ? (

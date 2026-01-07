@@ -23,11 +23,17 @@ import {
   Weight,
 } from "lucide-react";
 export default function MedicationCard({ medication }) {
+  const isCompleted = medication.status === "Completed";
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 mb-1">
+          <h3
+            className={`font-semibold text-gray-900 mb-1 ${
+              isCompleted ? "line-through" : ""
+            }`}
+          >
             {medication.name}
           </h3>
           <p className="text-sm text-gray-600 mb-2">{medication.dosage}</p>
@@ -46,7 +52,9 @@ export default function MedicationCard({ medication }) {
       <div className="space-y-2 mb-4 text-sm">
         <div className="flex items-center gap-2 text-gray-600">
           <Clock className="w-4 h-4" />
-          <span>{medication.frequency}</span>
+          <span className={isCompleted ? "line-through" : ""}>
+            {medication.frequency}
+          </span>
         </div>
         <div className="flex items-center gap-2 text-gray-600">
           <User className="w-4 h-4" />
@@ -58,7 +66,7 @@ export default function MedicationCard({ medication }) {
         </div>
       </div>
 
-      {medication.nextDose && (
+      {medication.nextDose && medication.nextDose !== "-" && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
           <p className="text-xs text-blue-600 font-medium mb-1">Next Dose</p>
           <p className="text-sm text-blue-900">{medication.nextDose}</p>
