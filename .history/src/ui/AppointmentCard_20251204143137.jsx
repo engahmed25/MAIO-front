@@ -1,3 +1,0 @@
-function AppointmentCard(){
-  return();
-}
