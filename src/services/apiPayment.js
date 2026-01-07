@@ -27,10 +27,10 @@ export async function getReservationDetails(reservationId) {
 
 // Create Stripe PaymentIntent for a reservation
 export async function createPaymentIntent(reservationId) {
-    const res = await axiosClient.post(`${backendURL}/api/payments/intent`, {
-        reservationId,
-    });
-    return res.data?.data;
+  const res = await axiosClient.post(`${backendURL}/api/payments/intent`, {
+    reservationId,
+  });
+  return res.data?.data;
 }
 
 // Confirm a successful PaymentIntent and finalize booking
@@ -49,14 +49,14 @@ export async function getUpcomingAppointments() {
 }
 
 // Create payment intent
-export async function createPaymentIntent({ price, reservationId }) {
-    try {
-        const res = await axiosClient.post(`${backendURL}/api/payments/intent`, {
-            price,
-            reservationId
-        });
-        return res.data;
-    } catch (error) {
-        throw error;
-    }
-}
+// export async function createPaymentIntent({ price, reservationId }) {
+//     try {
+//         const res = await axiosClient.post(`${backendURL}/api/payments/intent`, {
+//             price,
+//             reservationId
+//         });
+//         return res.data;
+//     } catch (error) {
+//         throw error;
+//     }
+// }
