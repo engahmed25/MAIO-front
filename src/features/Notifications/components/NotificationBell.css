@@ -1,0 +1,62 @@
+.notification-bell-container {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-bell-button {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.notification-bell-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.bell-icon {
+  width: 24px;
+  height: 24px;
+  color: #333;
+  transition: color 0.2s ease;
+}
+
+.notification-bell-button:hover .bell-icon {
+  color: #1976d2;
+}
+
+.notification-badge-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: #f44336;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .bell-icon {
+    color: #e0e0e0;
+  }
+
+  .notification-bell-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .notification-bell-button:hover .bell-icon {
+    color: #64b5f6;
+  }
+}

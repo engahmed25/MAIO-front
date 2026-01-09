@@ -1,10 +1,11 @@
-import { Search, Bell } from "lucide-react";
+import { Search } from "lucide-react";
 import UserButton from "./UserButton";
 import Notification from "../features/Notification/Notification";
 
 import { useAuthUser } from "react-auth-kit";
 import { usePatientSettings } from "../features/Patients/usePatientSettings";
 import { useDoctorSettings } from "../features/Doctors/useDoctorSettings";
+import NotificationBell from "../features/Notifications/components/NotificationBell";
 
 function DashBoardHeader() {
   const auth = useAuthUser();

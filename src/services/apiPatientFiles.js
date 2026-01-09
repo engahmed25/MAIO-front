@@ -265,3 +265,17 @@ export async function getMedicalRecords() {
     );
     return res.data;
 }
+
+/**
+ * Get patient files by patient ID (for doctors)
+ * @param {string} patientId - The ID of the patient
+ * @returns {Promise} - Response with patient's medical documents
+ */
+export async function getPatientFilesByDoctorView(patientId) {
+    // Token is automatically added by interceptor
+    // Doctors access patient medical documents through this endpoint with doctor token
+    const res = await axiosClient.get(
+        `${backendURL}/api/patients/medical-documents/${patientId}`
+    );
+    return res.data;
+}

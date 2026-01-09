@@ -41,6 +41,7 @@ import ReschedulePage from "./pages/ReschedulePage.jsx";
 import PatientProfile from "./pages/PatientProfile.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import DoctorCalendarPage from "./pages/DoctorCalendarPage.jsx";
+import { NotificationProvider } from "./features/Notifications/NotificationContext.jsx";
 
 // import store from "./utils/authStore.js";
 // import * as authKit from "react-auth-kit";
@@ -58,8 +59,9 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Home />,
+        element: <Home2 />,
       },
+
       {
         path: "/doctors",
         element: <AllDoctors />,
@@ -91,10 +93,6 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
-  },
-  {
-    path: "/HOME",
-    element: <Home2 />,
   },
 
   {
@@ -244,10 +242,12 @@ function App() {
         cookieDomain={window.location.hostname}
         cookieSecure={window.location.protocol === "https:"}
       >
-        <QueryClientProvider client={queryClient}>
-          {" "}
-          <RouterProvider router={router} />
-        </QueryClientProvider>
+        <NotificationProvider>
+          <QueryClientProvider client={queryClient}>
+            {" "}
+            <RouterProvider router={router} />
+          </QueryClientProvider>
+        </NotificationProvider>
         <Toaster position="top-center" />
       </AuthProvider>
     </>

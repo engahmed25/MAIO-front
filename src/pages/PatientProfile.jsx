@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { FileText, Pill, Users } from "lucide-react";
+import { FileText, Pill, Users, File, Download, Eye } from "lucide-react";
 import PatientInfo from "../features/Patients/PatienInfo/PatientInfo";
 import Allergies from "../ui/Allergies";
 import ContactInfo from "../ui/ContactInfo";
@@ -12,6 +12,9 @@ import { usePatientPublicProfile } from "../features/Patients/usePatientPublicPr
 import { useCreatePrescription } from "../features/Doctors/useCreatePrescription";
 import { useUpdatePrescription } from "../features/Doctors/useUpdatePrescription";
 import { usePatientPrescriptions } from "../features/Doctors/usePatientPrescriptions";
+import { useGetPatientDocByDoctor } from "../features/Doctors/useGetPatientDocByDoctor";
+import DoctorFileCard from "../features/Doctors/DoctorFileCard";
+import FileViewerModal from "../features/Patients/FileViewer";
 
 function PatientProfile() {
   const { patientId } = useParams();
@@ -49,8 +52,16 @@ function PatientProfile() {
   const tabs = [
     { id: "overview", label: "Overview", icon: FileText },
     { id: "prescriptions", label: "Prescriptions", icon: Pill },
+    { id: "documents", label: "View Documents", icon: File },
     { id: "doctors", label: "Doctors", icon: Users },
   ];
+
+  // Fetch patient documents using the custom hook
+  const { medicalDocuments: patientDocuments, isLoading: isLoadingDocuments } =
+    useGetPatientDocByDoctor(patientId);
+
+  // State for viewing files
+  const [viewingFile, setViewingFile] = useState(null);
 
   const onSubmit = (data) => {
     // Map frequency to timesPerDay
@@ -547,6 +558,124 @@ function PatientProfile() {
                       </form>
                     </div>
                   </>
+                )}
+              </div>
+            )}
+
+            {activeTab === "documents" && (
+              <div className="space-y-4">
+                {/* File Viewer Modal */}
+                {viewingFile && (
+                  <FileViewerModal
+                    file={viewingFile}
+                    onClose={() => setViewingFile(null)}
+                  />
+                )}
+
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      Patient Medical Documents
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      View all medical documents uploaded by the patient
+                    </p>
+                  </div>
+                </div>
+
+                {/* Stats Bar */}
+                {patientDocuments.length > 0 && (
+                  <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center">
+                        <p className="text-3xl font-bold text-gray-900 mb-1">
+                          {patientDocuments.length}
+                        </p>
+                        <p className="text-sm text-gray-600">Total Files</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-3xl font-bold text-gray-900 mb-1">
+                          {
+                            patientDocuments.filter((f) =>
+                              f.fileType?.startsWith("image/")
+                            ).length
+                          }
+                        </p>
+                        <p className="text-sm text-gray-600">Images</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-3xl font-bold text-gray-900 mb-1">
+                          {
+                            patientDocuments.filter(
+                              (f) => f.fileType === "application/pdf"
+                            ).length
+                          }
+                        </p>
+                        <p className="text-sm text-gray-600">Documents</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {isLoadingDocuments ? (
+                  <div className="flex justify-center py-12">
+                    <Spinner />
+                  </div>
+                ) : patientDocuments.length === 0 ? (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+                    <File className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                    <p className="text-gray-600">No documents found</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      This patient hasn't uploaded any medical documents yet
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                      Uploaded Files ({patientDocuments.length})
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {patientDocuments.map((doc) => {
+                        const backendURL =
+                          import.meta.env.VITE_BACKEND_URL ||
+                          "http://localhost:5000";
+                        const fileUrl = `${backendURL}/${doc.filePath?.replace(
+                          /\\/g,
+                          "/"
+                        )}`;
+
+                        // Convert backend document to FileCard format
+                        const fileForCard = {
+                          id: doc._id || doc.id,
+                          name: doc.title,
+                          type: doc.fileType,
+                          size: doc.size || 0,
+                          doctorName: doc.doctorName,
+                          documentType: doc.documentType,
+                          uploadDate: doc.uploadedAt
+                            ? new Date(doc.uploadedAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                }
+                              )
+                            : "N/A",
+                          preview: fileUrl,
+                          url: fileUrl,
+                        };
+
+                        return (
+                          <DoctorFileCard
+                            key={doc._id}
+                            file={fileForCard}
+                            onView={setViewingFile}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
