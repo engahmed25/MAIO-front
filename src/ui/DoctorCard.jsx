@@ -16,10 +16,10 @@ function DoctorCard({ doctor }) {
   const basUrl = import.meta.env.VITE_BACKEND_URL;
 
   return (
-    <Link to={`/doctor/${_id}`} className="block">
-      <div className="cursor-pointer hover:scale-105 transition-all duration-300 rounded-[var(--main-radius)] border-[var(--main-color)] border-[1px] p-4 bg-white shadow-sm w-full flex flex-col gap-3">
+    <Link to={`/doctor/${_id}`} className="block h-full">
+      <div className="cursor-pointer hover:scale-105 transition-all duration-300 rounded-[var(--main-radius)] border-[var(--main-color)] border-[1px] p-4 bg-white shadow-sm w-full h-full flex flex-col gap-3">
         {/* Top Section - Image */}
-        <div className="w-full h-64 overflow-hidden">
+        <div className="w-full h-64 overflow-hidden flex-shrink-0">
           <img
             src={`${basUrl}/${profilePicture}`}
             alt={fullName}
@@ -28,7 +28,7 @@ function DoctorCard({ doctor }) {
         </div>
 
         {/* Status */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <div
             className={`w-2 h-2 rounded-full ${
               isApproved ? "bg-green-500" : "bg-gray-500"
@@ -44,17 +44,21 @@ function DoctorCard({ doctor }) {
         </div>
 
         {/* Text Section */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 flex-grow min-h-0">
           {/* Doctor Name */}
-          <h3 className="text-lg font-bold">{fullName}</h3>
+          <h3 className="text-lg font-bold flex-shrink-0 line-clamp-1">
+            {fullName}
+          </h3>
 
           {/* Description */}
-          <p className="text-sm text-gray-500">{bio}</p>
+          <p className="text-sm text-gray-500 flex-grow overflow-hidden line-clamp-3">
+            {bio}
+          </p>
 
           {/* Specialization and Price Row */}
-          <div className="flex items-center justify-between text-sm font-medium">
-            <span>{specialization}</span>
-            <span>{ratePerSession} EGP</span>
+          <div className="flex items-center justify-between text-sm font-medium flex-shrink-0 pt-2 border-t border-gray-100">
+            <span className="truncate mr-2">{specialization}</span>
+            <span className="whitespace-nowrap">{ratePerSession} EGP</span>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import SideCalendar from "../features/Doctors/SideCalendar";
 import TodaysOverview from "../features/Doctors/TodaysOverView";
 import TodaySchedule from "../features/Doctors/TodaysSchedule";
+import NearestUpcomingAppointment from "../features/Doctors/NearestUpcomingAppointment";
 import { useState, useEffect } from "react";
 import Button from "../ui/Button";
 import { useDoctorAppointmentsByDate } from "../features/Doctors/useDoctorAppointmentsByDate";
@@ -87,6 +88,9 @@ function DoctorDashBoard() {
             </Button>
           </div>
         </div>
+
+        {/* Nearest Upcoming Appointment */}
+        <NearestUpcomingAppointment />
 
         {/* Overview Stats */}
         <TodaysOverview

@@ -25,13 +25,25 @@ export default function BookingSlots({ id }) {
   const user = authUser()?.user;
 
   // Fetch available days for the doctor
-  const { isLoading: isLoadingAvailableDays, availableDays, error: availableDaysError } = useAvailableDays(id);
+  const {
+    isLoading: isLoadingAvailableDays,
+    availableDays,
+    error: availableDaysError,
+  } = useAvailableDays(id);
 
   // Use create reservation mutation
-  const { isPending: isSubmitting, mutate: submitReservation, error: reservationError } = useCreateReservation();
+  const {
+    isPending: isSubmitting,
+    mutate: submitReservation,
+    error: reservationError,
+  } = useCreateReservation();
 
   // Fetch reservation details when we have a reservation ID
-  const { isLoading: isLoadingReservation, reservation, error: reservationFetchError } = useGetReservation(reservationId);
+  const {
+    isLoading: isLoadingReservation,
+    reservation,
+    error: reservationFetchError,
+  } = useGetReservation(reservationId);
 
   // Generate dates for the next 7 days
   const dates = useMemo(() => {
@@ -65,18 +77,18 @@ export default function BookingSlots({ id }) {
     if (!availableDays?.data || !Array.isArray(availableDays.data)) {
       return false;
     }
-    
+
     // Map 3-letter day abbreviations to full day names
     const dayNameMap = {
-      "SUN": "sunday",
-      "MON": "monday",
-      "TUE": "tuesday",
-      "WED": "wednesday",
-      "THU": "thursday",
-      "FRI": "friday",
-      "SAT": "saturday"
+      SUN: "sunday",
+      MON: "monday",
+      TUE: "tuesday",
+      WED: "wednesday",
+      THU: "thursday",
+      FRI: "friday",
+      SAT: "saturday",
     };
-    
+
     const fullDayName = dayNameMap[dayName];
     return availableDays.data.some(
       (availableDay) => availableDay.toLowerCase() === fullDayName.toLowerCase()
@@ -84,11 +96,13 @@ export default function BookingSlots({ id }) {
   };
 
   // Fetch availability for selected date
-  const selectedDate = selectedDateIndex !== null ? dates[selectedDateIndex] : null;
-  const { isLoading: isLoadingSlots, availability, error: availabilityError } = useBookingDoctor(
-    id,
-    selectedDate?.fullDate
-  );
+  const selectedDate =
+    selectedDateIndex !== null ? dates[selectedDateIndex] : null;
+  const {
+    isLoading: isLoadingSlots,
+    availability,
+    error: availabilityError,
+  } = useBookingDoctor(id, selectedDate?.fullDate);
 
   // Extract time slots from availability response
   const timeSlots = useMemo(() => {
@@ -104,6 +118,9 @@ export default function BookingSlots({ id }) {
 
   function handleBooking() {
     if (!isAuthenticated()) {
+      // Store the current doctor page URL for redirect after login
+      const currentPath = `/doctor/${id}`;
+      localStorage.setItem("redirectAfterLogin", currentPath);
       setIsModalOpen(true);
       toast("Login to book an appointment", {
         icon: "⚠️",
@@ -144,7 +161,10 @@ export default function BookingSlots({ id }) {
           },
           onError: (error) => {
             console.error("Booking error:", error);
-            toast.error(error?.response?.data?.message || "An error occurred while booking. Please try again.");
+            toast.error(
+              error?.response?.data?.message ||
+                "An error occurred while booking. Please try again."
+            );
           },
         }
       );
@@ -166,7 +186,9 @@ export default function BookingSlots({ id }) {
   if (availableDaysError) {
     return (
       <div className="max-w-4xl p-8">
-        <div className="text-red-500 p-4">Error loading available days. Please try again.</div>
+        <div className="text-red-500 p-4">
+          Error loading available days. Please try again.
+        </div>
       </div>
     );
   }
@@ -190,10 +212,10 @@ export default function BookingSlots({ id }) {
         const appointmentInfo = {
           drName: `${res.doctorId.firstName} ${res.doctorId.lastName}`,
           speciality: res.doctorId.specialization,
-          date: new Date(res.appointmentDate).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+          date: new Date(res.appointmentDate).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
           }),
           time: `${res.startTime} - ${res.endTime}`,
           clinicName: "Clinic", // Backend doesn't provide clinic name, using default
@@ -216,7 +238,9 @@ export default function BookingSlots({ id }) {
             <h2 className="text-3xl font-bold text-green-700 mb-2">
               ✓ Appointment Reserved Successfully!
             </h2>
-            <p className="text-gray-600 text-lg">Your appointment has been confirmed</p>
+            <p className="text-gray-600 text-lg">
+              Your appointment has been confirmed
+            </p>
           </div>
 
           <div className="bg-white rounded-xl p-6 mb-6 border border-green-200">
@@ -229,7 +253,9 @@ export default function BookingSlots({ id }) {
               </div>
               <div>
                 <p className="text-sm text-gray-500 font-semibold">Time</p>
-                <p className="text-2xl font-bold text-gray-800">{bookedData.time}</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {bookedData.time}
+                </p>
               </div>
             </div>
           </div>
@@ -280,7 +306,9 @@ export default function BookingSlots({ id }) {
                     : "!bg-[var(--sec-color)] !border-gray-200 hover:!border-gray-400 !text-[var(--head-desc-color)]"
                 }`}
               >
-                <span className="text-xs font-medium uppercase">{item.day}</span>
+                <span className="text-xs font-medium uppercase">
+                  {item.day}
+                </span>
                 <span className="text-2xl font-semibold mt-1">{item.date}</span>
               </Button>
             );
@@ -291,7 +319,9 @@ export default function BookingSlots({ id }) {
       {/* Time Selection - Only show if a date is selected */}
       {selectedDateIndex !== null && (
         <div className="mb-8">
-          <h3 className="text-m font-semibold text-gray-700 mb-3">Select Time</h3>
+          <h3 className="text-m font-semibold text-gray-700 mb-3">
+            Select Time
+          </h3>
 
           {isLoadingSlots && (
             <div className="flex justify-center py-8">
@@ -349,14 +379,24 @@ export default function BookingSlots({ id }) {
 
       <Button
         onClick={handleBooking}
-        disabled={selectedTime === null || selectedDateIndex === null || !reasonForVisit.trim() || isSubmitting}
+        disabled={
+          selectedTime === null ||
+          selectedDateIndex === null ||
+          !reasonForVisit.trim() ||
+          isSubmitting
+        }
         className={`w-[80%] md:w-[50%] py-4 !rounded-[20px] text-white font-semibold transition-all ${
-          selectedTime === null || selectedDateIndex === null || !reasonForVisit.trim() || isSubmitting
+          selectedTime === null ||
+          selectedDateIndex === null ||
+          !reasonForVisit.trim() ||
+          isSubmitting
             ? "!bg-gray-300 cursor-not-allowed"
             : "!bg-[var(--main-lite-color)] hover:!bg-[var(--main-color)]"
         }`}
       >
-        {isSubmitting ? "Booking..." : isAuthenticated()
+        {isSubmitting
+          ? "Booking..."
+          : isAuthenticated()
           ? "Book Appointment"
           : "You must be logged in to book"}
       </Button>
@@ -366,4 +406,3 @@ export default function BookingSlots({ id }) {
     </div>
   );
 }
-

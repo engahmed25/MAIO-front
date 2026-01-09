@@ -19,51 +19,71 @@ import {
   X,
 } from "lucide-react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Search from "../ui/Search";
-import { useAuthHeader } from "react-auth-kit";
+import { useAuthHeader, useIsAuthenticated, useAuthUser } from "react-auth-kit";
+import UserButton from "../ui/UserButton";
+import Button from "../ui/Button";
 
 // Header Component
-const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+function Header() {
+  const navigate = useNavigate();
+  const isAuthenticated = useIsAuthenticated();
+  const auth = useAuthUser();
+  const user = auth()?.user;
+  const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">M</span>
+          <Link to="/">
+            <div className="text-xl font-semibold flex items-center gap-1">
+              <img
+                src="./logo.png"
+                alt="logo"
+                className="w-12 md:w-12 rounded-xl object-cover"
+              />
             </div>
-            <div>
-              <h1 className="font-bold text-gray-900 text-lg">MAIO</h1>
-              <p className="text-xs text-gray-500">Medical Platform</p>
-            </div>
+          </Link>
+
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center gap-6">
+            <Link
+              to="/doctors"
+              className="text-[var(--main-color)] hover:text-[var(--main-lite-color)] font-bold transition-colors"
+            >
+              All Doctors
+            </Link>
+            <Link
+              to="/contactus"
+              className="text-[var(--main-color)] hover:text-[var(--main-lite-color)] font-bold transition-colors"
+            >
+              Contact Us
+            </Link>
           </div>
 
           {/* Navigation & Auth Buttons */}
           <div className="flex items-center gap-4">
-            {isLoggedIn ? (
-              <>
-                <button className="text-gray-700 hover:text-gray-900 font-medium px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  Dashboard
-                </button>
-                <button className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors">
-                  <User className="w-5 h-5 text-blue-600" />
-                </button>
-              </>
+            {isAuthenticated() ? (
+              <UserButton
+                profilePicture={`${baseUrl}/${user?.profilePicture}`}
+                role={user?.role}
+                userName={`${user?.firstName} ${user?.lastName}`}
+              />
             ) : (
               <>
-                <button
-                  onClick={() => setIsLoggedIn(true)}
-                  className="text-gray-700 hover:text-gray-900 font-medium px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Login
-                </button>
-                <button className="bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                  Sign Up
-                </button>
+                <Link to="/login">
+                  <Button className="w-full p-2.5 mt-2.5  border border-(--main-color) hover:bg-(--main-color) hover:text-white!">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button className="p-2.5 mt-2.5 bg-white text-black! font-semibold!  border border-(--main-color) hover:bg-(--main-color) hover:text-white!">
+                    Sign Up
+                  </Button>
+                </Link>
               </>
             )}
           </div>
@@ -71,9 +91,11 @@ const Header = () => {
       </div>
     </header>
   );
-};
+}
 // Hero Section Component
-const HeroSection = () => {
+function HeroSection() {
+  const navigate = useNavigate();
+
   return (
     <section className="pt-32 pb-20 bg-gradient-to-br from-blue-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto px-6">
@@ -91,11 +113,17 @@ const HeroSection = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4 mb-12">
-              <button className="bg-blue-600 text-white font-semibold px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-200">
+              <button
+                onClick={() => navigate("/doctors")}
+                className="bg-blue-600 text-white font-semibold px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg shadow-blue-200"
+              >
                 Get Started
                 <ArrowRight className="w-5 h-5" />
               </button>
-              <button className="bg-white text-gray-700 font-semibold px-8 py-4 rounded-lg hover:bg-gray-50 transition-colors border-2 border-gray-200">
+              <button
+                onClick={() => navigate("/contactus")}
+                className="bg-white text-gray-700 font-semibold px-8 py-4 rounded-lg hover:bg-gray-50 transition-colors border-2 border-gray-200"
+              >
                 Learn More
               </button>
             </div>
@@ -179,34 +207,41 @@ const HeroSection = () => {
       </div>
     </section>
   );
-};
+}
 
 // Specialty Card Component
 const SpecialtyCard = ({ specialty }) => {
   const Icon = specialty.icon;
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    // Navigate to doctors filtered by specialization
+    navigate(`/doctors/specialization/${specialty.name.toLowerCase()}`);
+  };
 
   return (
-    <Link to={`/specialties/${specialty.id}`}>
-      <div className="bg-white rounded-xl p-6 border-2 border-gray-100 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer group">
-        <div
-          className={`w-14 h-14 ${specialty.bgColor} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
-        >
-          <Icon className={`w-7 h-7 ${specialty.iconColor}`} />
-        </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
-          {specialty.name}
-        </h3>
-        <p className="text-gray-600 mb-4">{specialty.description}</p>
-        <p className="text-sm text-blue-600 font-semibold">
-          {specialty.doctorCount} Doctors Available
-        </p>
+    <div
+      onClick={handleClick}
+      className="bg-white rounded-xl p-6 border-2 border-gray-100 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer group"
+    >
+      <div
+        className={`w-14 h-14 ${specialty.bgColor} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+      >
+        <Icon className={`w-7 h-7 ${specialty.iconColor}`} />
       </div>
-    </Link>
+      <h3 className="text-xl font-bold text-gray-900 mb-2">{specialty.name}</h3>
+      <p className="text-gray-600 mb-4">{specialty.description}</p>
+      <p className="text-sm text-blue-600 font-semibold">
+        {specialty.doctorCount} Doctors Available
+      </p>
+    </div>
   );
 };
 
 // Find by Specialty Section
 const FindBySpecialtySection = () => {
+  const navigate = useNavigate();
+
   const specialties = [
     {
       id: 1,
@@ -282,6 +317,15 @@ const FindBySpecialtySection = () => {
     },
   ];
 
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/doctors?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6">
@@ -298,14 +342,18 @@ const FindBySpecialtySection = () => {
 
         {/* Search Bar */}
         <div className="max-w-2xl mx-auto mb-12">
-          <div className="relative">
-            <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search for a specialty or doctor..."
-              className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-            />
-          </div>
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search for a specialty or doctor..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+              />
+            </div>
+          </form>
         </div>
 
         {/* Specialty Grid */}
@@ -317,7 +365,10 @@ const FindBySpecialtySection = () => {
 
         {/* View All Button */}
         <div className="text-center mt-12">
-          <button className="text-blue-600 hover:text-blue-700 font-semibold text-lg flex items-center gap-2 mx-auto">
+          <button
+            onClick={() => navigate("/doctors")}
+            className="text-blue-600 hover:text-blue-700 font-semibold text-lg flex items-center gap-2 mx-auto"
+          >
             View All Specialties
             <ArrowRight className="w-5 h-5" />
           </button>
@@ -328,7 +379,7 @@ const FindBySpecialtySection = () => {
 };
 
 // Main Home Component
-const Home2 = () => {
+function Home2() {
   const authHeader = useAuthHeader();
   const token = authHeader();
   console.log("==============================================");
@@ -344,9 +395,10 @@ const Home2 = () => {
     <div className="min-h-screen bg-white">
       <Header />
       <HeroSection />
+      <Search />
       <FindBySpecialtySection />
     </div>
   );
-};
+}
 
 export default Home2;

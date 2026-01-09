@@ -17,9 +17,12 @@ import MedicalRecordRow from "../features/Patients/MedicalRecordRow";
 import { useDoctorsByPatient } from "../features/Patients/useDoctorsByPatient";
 import { useGetPatientsDocs } from "../features/Patients/useGetPatientsDocs";
 import { usePatientPrescriptions } from "../features/Patients/usePatientPrescriptions";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function PatientDashboard() {
   console.log("🏥 PatientDashboard component is rendering!");
+
+  const navigate = useNavigate();
 
   // Fetch appointments data from API
   const {
@@ -315,6 +318,45 @@ export default function PatientDashboard() {
   console.log("First record:", medicalRecords[0]);
   console.log("==============================================");
 
+  // Function to export medical records as CSV
+  const handleExportRecords = () => {
+    if (medicalRecords.length === 0) {
+      alert("No medical records to export");
+      return;
+    }
+
+    // Create CSV content
+    const headers = ["Date", "Type", "Title", "Doctor", "Status"];
+    const csvContent = [
+      headers.join(","),
+      ...medicalRecords.map((record) =>
+        [
+          `"${record.date}"`,
+          `"${record.type}"`,
+          `"${record.title}"`,
+          `"${record.doctor}"`,
+          `"${record.status}"`,
+        ].join(",")
+      ),
+    ].join("\n");
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `medical_records_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       {/* Welcome Section */}
@@ -332,7 +374,10 @@ export default function PatientDashboard() {
               Your scheduled medical visits
             </p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+          <button
+            onClick={() => navigate("/doctors")}
+            className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium "
+          >
             <Plus className="w-4 h-4" />
             Book New
           </button>
@@ -387,10 +432,10 @@ export default function PatientDashboard() {
               Your active prescriptions and dosage schedule
             </p>
           </div>
-          <button className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1">
+          {/* <button className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-1">
             View All
             <ChevronRight className="w-4 h-4" />
-          </button>
+          </button> */}
         </div>
         {isLoadingPrescriptions ? (
           <div className="text-center py-8">
@@ -421,7 +466,10 @@ export default function PatientDashboard() {
               Your recent medical documents and records
             </p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700">
+          <button
+            onClick={handleExportRecords}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700 cursor-pointer"
+          >
             <Download className="w-4 h-4" />
             Export All
           </button>

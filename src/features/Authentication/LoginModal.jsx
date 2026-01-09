@@ -1,11 +1,16 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function LoginModal({ isOpen, onClose }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (!isOpen) return null;
 
   const handleLoginClick = () => {
+    // Store current path for redirect after login
+    if (location.pathname.includes("/doctor/")) {
+      localStorage.setItem("redirectAfterLogin", location.pathname);
+    }
     navigate("/login");
     onClose?.();
   };

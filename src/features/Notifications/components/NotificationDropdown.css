@@ -1,0 +1,123 @@
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  max-height: 500px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+}
+
+.notification-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.mark-all-read-btn {
+  background: none;
+  border: none;
+  color: #1976d2;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.mark-all-read-btn:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+.notification-list {
+  overflow-y: auto;
+  max-height: 440px;
+}
+
+.notification-loading {
+  padding: 40px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.notification-empty {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.notification-empty p {
+  color: #999;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Scrollbar styling */
+.notification-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .notification-dropdown {
+    background: #2c2c2c;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .notification-header {
+    background-color: #1f1f1f;
+    border-bottom-color: #444;
+  }
+
+  .notification-header h3 {
+    color: #e0e0e0;
+  }
+
+  .mark-all-read-btn {
+    color: #64b5f6;
+  }
+
+  .mark-all-read-btn:hover {
+    background-color: rgba(100, 181, 246, 0.1);
+  }
+
+  .notification-loading,
+  .notification-empty p {
+    color: #999;
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .notification-dropdown {
+    width: calc(100vw - 32px);
+    right: -100px;
+  }
+}

@@ -48,7 +48,16 @@ export function useLogin() {
                 localStorage.removeItem("pendingDoctor");
                 queryClient.removeQueries(["DoctorData"]);
                 console.log("Login successful from API:", user);
-                user.role === "doctor" ? navigate("/doctor/dashboard") : navigate("/");
+
+                // Check for redirect URL stored before login
+                const redirectUrl = localStorage.getItem('redirectAfterLogin');
+                if (redirectUrl) {
+                    localStorage.removeItem('redirectAfterLogin');
+                    navigate(redirectUrl);
+                } else {
+                    // Default navigation based on role
+                    user.role === "doctor" ? navigate("/doctor/dashboard") : navigate("/");
+                }
             } else toast.error("Login persistence failed");
         },
         onError: (error) => {

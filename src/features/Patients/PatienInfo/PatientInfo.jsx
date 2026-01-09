@@ -33,11 +33,11 @@ export default function PatientInfo({ patientData }) {
         </div>
 
         {/* Right Section: Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 flex-shrink-0">
+        {/* <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 flex-shrink-0">
           <DoctorChatButton patientData={patientData} />
           <ViewRecordButton />
           <ScheduleAppointmentButton />
-        </div>
+        </div> */}
       </div>
     </div>
   );
