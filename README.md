@@ -208,7 +208,7 @@ src/
    
    Create a `.env` file in the project root:
    ```env
-   VITE_BACKEND_URL=http://localhost:5000
+   VITE_BACKEND_URL=http://localhost:9000
    ```
    
    *(See [Environment Configuration](#environment-configuration) for details)*
@@ -266,7 +266,7 @@ Vite exposes environment variables prefixed with `VITE_` to the client via `impo
 
 | Variable | Purpose | Default | Example |
 |----------|---------|---------|---------|
-| `VITE_BACKEND_URL` | Backend API base URL | `http://localhost:5000` | `https://api.maio.com` |
+| `VITE_BACKEND_URL` | Backend API base URL | `http://localhost:9000` | `https://api.maio.com` |
 
 #### Configuration Files
 
@@ -277,7 +277,7 @@ Vite exposes environment variables prefixed with `VITE_` to the client via `impo
 #### Usage in Code
 
 ```javascript
-const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:9000";
 ```
 
 **Note**: Only variables prefixed with `VITE_` are exposed. Server-only secrets (API keys, db passwords) should never be in `.env` files used by the frontend.
@@ -710,7 +710,7 @@ npm run dev -- --port 3000
 
 #### 2. **VITE_BACKEND_URL Not Defined**
 - Create `.env` file in project root
-- Add: `VITE_BACKEND_URL=http://localhost:5000`
+- Add: `VITE_BACKEND_URL=http://localhost:9000`
 - Restart dev server
 
 #### 3. **ESLint Errors Not Auto-Fixing**
@@ -775,7 +775,7 @@ console.log("Query Cache:", queryClient.getQueryData(["doctors"]));
 ## Important Notes for New Developers
 
 1. **Environment Setup**: Always create `.env` file before running `npm run dev`
-2. **Backend Dependency**: This frontend requires a running backend server (typically on `http://localhost:5000`)
+2. **Backend Dependency**: This frontend requires a running backend server (typically on `http://localhost:9000`)
 3. **Cookie Security**: HTTP-only cookies are secure; never access them directly in JavaScript
 4. **Real-Time Features**: Socket.io requires backend WebSocket server; some features fail gracefully offline
 5. **Payment Testing**: Always use Stripe test keys in development; never hardcode production keys
