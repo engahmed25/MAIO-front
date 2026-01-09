@@ -10,7 +10,7 @@ import DrInfo from "./features/Appointments/DrInfo.jsx";
 import { QueryClient } from "@tanstack/query-core";
 import { QueryClientProvider } from "@tanstack/react-query";
 import AllDoctors from "./pages/AllDoctors.jsx";
-import PatientDashboard from "./pages/PatientDashboard.jsx";
+import PatientDashboard from "./pages/PatientDashBoard.jsx";
 import Home2 from "./pages/Home2.jsx";
 
 import MedicalHistory from "./features/Authentication/MedicalHistoryForm.jsx";
@@ -153,7 +153,11 @@ const router = createBrowserRouter([
   //! we need to reuse the layout for both doctor and patient dashboard
   {
     path: "/doctor",
-    element: <DashboardLayout role="doctor" />,
+    element: (
+      <ProtectedRoute allowedRoles={["doctor"]}>
+        <DashboardLayout role="doctor" />
+      </ProtectedRoute>
+    ),
     children: [
       { path: "dashboard", element: <DoctorDashBoard /> },
       { path: "patientList", element: <PatientList /> },

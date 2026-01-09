@@ -1,5 +1,7 @@
 import { Search } from "lucide-react";
 import UserButton from "./UserButton";
+import Notification from "../features/Notification/Notification";
+
 import { useAuthUser } from "react-auth-kit";
 import { usePatientSettings } from "../features/Patients/usePatientSettings";
 import { useDoctorSettings } from "../features/Doctors/useDoctorSettings";
@@ -53,7 +55,14 @@ function DashBoardHeader() {
         {/* Right side - Notifications and User */}
         <div className="flex items-center gap-4">
           {/* Notification Bell */}
-          <NotificationBell />
+          {/* <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <Bell className="w-5 h-5 text-gray-600" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+              3
+            </span> 
+          </button> */}
+          <Notification/>
 
           {/* User Button */}
           <UserButton
