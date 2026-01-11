@@ -797,3 +797,4 @@ console.log("Query Cache:", queryClient.getQueryData(["doctors"]));
 For questions, refer to code comments, API documentation (backend), or the troubleshooting section above.
 
 **Happy coding!** 🚀
+# MAIO
