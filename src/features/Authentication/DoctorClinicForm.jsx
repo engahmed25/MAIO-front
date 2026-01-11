@@ -480,7 +480,7 @@ function DoctorClinicForm({ onNext }) {
           className="w-full p-2.5 mt-2.5"
           onClick={handleAddSlot}
         >
-          Add Time Slot
+          {isLoading ? "Adding..." : "Add Time Slot"}
         </Button>
 
         {/* SUBMIT */}

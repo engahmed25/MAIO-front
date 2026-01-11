@@ -9,6 +9,10 @@ export function useDoctorsByPatient() {
         queryKey: ["patientAppointments"],
         queryFn: getDoctorsByPatient,
         enabled: isAuthenticated(), // Only run if user is authenticated
+        retry: 1,
+        retryDelay: 1000,
+        staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
     });
 
     console.log("🔴 useDoctorsByPatient HOOK - Raw query.data:", query.data);

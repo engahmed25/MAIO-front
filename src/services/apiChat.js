@@ -64,3 +64,46 @@ export const getMyRooms = async () => {
   const res = await axios.get("/api/v1/rooms/my-rooms");
   return res.data.rooms || [];
 };
+
+// Get unread messages count for a specific room
+export const getUnreadMessagesCount = async (roomId) => {
+  try {
+    const res = await axios.get(`/api/v1/messages/${roomId}/unread-count`);
+    return res.data.unreadCount || 0;
+  } catch (error) {
+    console.error("Error fetching unread count:", error);
+    return 0;
+  }
+};
+
+// Get all rooms with unread message counts
+export const getMyRoomsWithUnreadCounts = async () => {
+  try {
+    const res = await axios.get("/api/v1/rooms/my-rooms");
+    const rooms = res.data.rooms || [];
+
+    // For each room, fetch unread count
+    const roomsWithCounts = await Promise.all(
+      rooms.map(async (room) => {
+        try {
+          const unreadRes = await axios.get(`/api/v1/messages/${room._id}/unread-count`);
+          return {
+            ...room,
+            unreadCount: unreadRes.data.unreadCount || 0
+          };
+        } catch (error) {
+          return {
+            ...room,
+            unreadCount: 0
+          };
+        }
+      })
+    );
+
+    return roomsWithCounts;
+  } catch (error) {
+    console.error("Error fetching rooms with unread counts:", error);
+    return [];
+  }
+};
+

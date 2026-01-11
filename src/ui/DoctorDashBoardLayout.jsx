@@ -27,11 +27,7 @@ export default function DashboardLayout({ role = "patient" }) {
     { icon: LayoutDashboard, label: "Dashboard", path: "/doctor/dashboard" },
     { icon: Users, label: "Patients", path: "/doctor/patientList" },
     { icon: Calendar, label: "Calendar", path: "/doctor/calendar" },
-    {
-      icon: MessageSquare,
-      label: "Messages",
-      path: "/doctor/consulting-doctors",
-    },
+
     { icon: Settings, label: "Settings", path: "/doctor/settings" },
   ];
 

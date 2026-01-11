@@ -12,6 +12,11 @@ function PatientsList() {
   // Fetch patients from API
   const { isLoading, patients, totalPatients, error } = usePatientsByDoctor();
 
+  console.log("🏥 PatientsList - patients:", patients);
+  console.log("🏥 PatientsList - totalPatients:", totalPatients);
+  console.log("🏥 PatientsList - isLoading:", isLoading);
+  console.log("🏥 PatientsList - error:", error);
+
   if (isLoading) {
     return (
       <div className="flex-1 bg-gray-50 flex items-center justify-center">
@@ -22,8 +27,37 @@ function PatientsList() {
 
   if (error) {
     return (
-      <div className="flex-1 bg-gray-50 flex items-center justify-center">
-        <p className="text-red-600">Error loading patients: {error.message}</p>
+      <div className="flex-1 bg-gray-50 flex flex-col items-center justify-center p-8">
+        <p className="text-red-600 text-lg font-semibold mb-2">
+          Error loading patients
+        </p>
+        <p className="text-gray-600">{error.message}</p>
+        <p className="text-sm text-gray-500 mt-4">
+          Please check the console for more details
+        </p>
+      </div>
+    );
+  }
+
+  // If no error but no patients either
+  if (!isLoading && patients.length === 0) {
+    return (
+      <div className="flex-1 bg-gray-50">
+        <div className="px-8 py-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Patients</h1>
+          <p className="text-gray-600">
+            Manage and view all your assigned patients
+          </p>
+        </div>
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="bg-white rounded-lg border border-gray-200 p-8 max-w-md text-center">
+            <p className="text-gray-600 text-lg mb-2">No patients found</p>
+            <p className="text-sm text-gray-500">
+              You don't have any patients with confirmed or completed
+              appointments yet.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

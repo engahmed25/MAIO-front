@@ -105,9 +105,17 @@ export async function getDoctorInfo() {
 
 // Get patients under care of the current doctor
 export async function getPatientsByDoctor() {
-    const res = await axiosClient.get(`${backendURL}/api/doctors/me/patients`);
-    console.log("getPatientsByDoctor response:", res.data);
-    return res.data;
+    try {
+        // Fetch with a higher limit to ensure we get all patients
+        const res = await axiosClient.get(`${backendURL}/api/doctors/me/patients?limit=100`);
+        console.log("✅ getPatientsByDoctor response:", res.data);
+        return res.data;
+    } catch (error) {
+        console.error("❌ Error in getPatientsByDoctor:", error);
+        console.error("❌ Error response:", error.response?.data);
+        console.error("❌ Error status:", error.response?.status);
+        throw error;
+    }
 }
 
 // Get current doctor profile/settings

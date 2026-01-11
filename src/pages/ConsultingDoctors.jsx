@@ -7,6 +7,7 @@ import PatientDoctorCard from "../features/Doctors/PatientDoctorCard";
 import PatientInfoBanner from "../features/Doctors/PatientInfoBanner";
 import { usePatientDoctors } from "../features/Patients/usePatientDoctors";
 import { usePatientPublicProfile } from "../features/Patients/usePatientPublicProfile";
+import { useDoctorUnreadCounts } from "../features/RealTime/useDoctorUnreadCounts";
 import Spinner from "../ui/Spinner";
 
 // Main ConsultingDoctors Component
@@ -28,6 +29,9 @@ export default function ConsultingDoctors() {
     isLoading: isLoadingPatient,
     error: patientError,
   } = usePatientPublicProfile(patientId);
+
+  // Fetch unread message counts for all doctors
+  const { unreadCountsByDoctor } = useDoctorUnreadCounts();
 
   const patientInfo = {
     name:
@@ -74,6 +78,7 @@ export default function ConsultingDoctors() {
     ratePerSession: doctor.ratePerSession,
     rating: doctor.rating,
     yearsOfExperience: doctor.yearsOfExperience,
+    unreadCount: unreadCountsByDoctor[doctor._id] || 0, // Add unread message count
   }));
 
   if (isLoading || isLoadingPatient) {

@@ -6,7 +6,15 @@ import Button from "../ui/Button";
 
 function DoctorsBySpecialization() {
   const { specialization } = useParams();
-  const { isLoading, doctors, error } = useDoctorSpeciality(specialization);
+
+  // Capitalize first letter to match API format (e.g., "cardiology" -> "Cardiology")
+  const formattedSpecialization = specialization
+    ? specialization.charAt(0).toUpperCase() + specialization.slice(1)
+    : "";
+
+  const { isLoading, doctors, error } = useDoctorSpeciality(
+    formattedSpecialization
+  );
 
   if (isLoading) {
     return <Spinner />;

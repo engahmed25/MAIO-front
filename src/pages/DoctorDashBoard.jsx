@@ -54,8 +54,14 @@ function DoctorDashBoard() {
   console.log("👨‍⚕️ DoctorDashBoard - isDoctorLoading:", isDoctorLoading);
 
   // Fetch appointments for the selected date
-  const { totalAppointments, isLoading } =
+  const { totalAppointments, isLoading, appointments } =
     useDoctorAppointmentsByDate(selectedDate);
+
+  // Debug appointments data
+  console.log("📅 Selected Date:", selectedDate);
+  console.log("📊 Total Appointments:", totalAppointments);
+  console.log("📋 Appointments Array:", appointments);
+  console.log("⏳ Is Loading:", isLoading);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -72,21 +78,6 @@ function DoctorDashBoard() {
             Here's your overview for today. You have{" "}
             {isLoading ? "..." : totalAppointments} appointments scheduled.
           </p>
-
-          <div className="flex gap-3 mt-4">
-            <Button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm">
-              + New Appointment
-            </Button>
-            <Button className="px-4 py-2 bg-white !text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm border border-gray-200">
-              Send Message
-            </Button>
-            <Button className="px-4 py-2 bg-white !text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm border border-gray-200">
-              View Patients
-            </Button>
-            <Button className="px-4 py-2 bg-white !text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm border border-gray-200">
-              View Reports
-            </Button>
-          </div>
         </div>
 
         {/* Nearest Upcoming Appointment */}

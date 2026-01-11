@@ -194,7 +194,8 @@ function NearestUpcomingAppointment() {
               {/* Chronic Diseases */}
               {appointment.medicalInfo?.chronicDiseases &&
                 appointment.medicalInfo.chronicDiseases.length > 0 && (
-                  <div className="text-xs text-orange-700 bg-orange-50 border border-orange-200 px-3 py-2 rounded-lg">
+                  <div className="text-xs text-orange-700 bg-orange-50 border border-orange-200 px-3 py-2 rounded-lg flex items-center gap-2">
+                    <span className="text-base">♿</span>
                     <span className="font-semibold">Chronic Diseases: </span>
                     <span>
                       {appointment.medicalInfo.chronicDiseases.join(", ")}
@@ -204,7 +205,8 @@ function NearestUpcomingAppointment() {
 
               {/* Current Medications */}
               {appointment.medicalInfo?.currentMedications && (
-                <div className="text-xs text-blue-700 bg-blue-50 border border-blue-200 px-3 py-2 rounded-lg">
+                <div className="text-xs text-blue-700 bg-blue-50 border border-blue-200 px-3 py-2 rounded-lg flex items-center gap-2">
+                  <span className="text-base">💊</span>
                   <span className="font-semibold">Current Medications: </span>
                   <span>{appointment.medicalInfo.currentMedications}</span>
                 </div>

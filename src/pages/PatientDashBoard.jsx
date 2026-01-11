@@ -9,6 +9,7 @@ import {
   Droplet,
   Weight,
 } from "lucide-react";
+import { useMemo } from "react";
 import WelcomeSection from "../features/Patients/WelcomeMsg";
 import AppointmentCard from "../features/Patients/AppointmentsCard";
 import HealthVitalCard from "../features/Patients/HealthVitalCard";
@@ -20,8 +21,6 @@ import { usePatientPrescriptions } from "../features/Patients/usePatientPrescrip
 import { Link, useNavigate } from "react-router-dom";
 
 export default function PatientDashboard() {
-  console.log("🏥 PatientDashboard component is rendering!");
-
   const navigate = useNavigate();
 
   // Fetch appointments data from API
@@ -31,103 +30,51 @@ export default function PatientDashboard() {
     error,
   } = useDoctorsByPatient();
 
-  console.log("✅ After useDoctorsByPatient hook");
-  console.log("📊 apiAppointments from hook:", apiAppointments);
-  console.log("📊 apiAppointments length:", apiAppointments?.length);
-  console.log("📊 isLoading:", isLoading);
-  console.log("📊 error:", error);
-
   // Fetch medical documents from API
   const { medicalDocuments, isLoading: isLoadingDocs } = useGetPatientsDocs();
 
   // Fetch prescriptions from API
-  const { prescriptions: apiPrescriptions, isLoading: isLoadingPrescriptions } =
-    usePatientPrescriptions();
-
-  console.log("✅ After useGetPatientsDocs hook");
-
-  // Debug: Log medical documents
-  console.log("==============================================");
-  console.log(
-    "🩺 PATIENT DASHBOARD - Medical Documents from useGetPatientsDocs:"
-  );
-  console.log("medicalDocuments:", medicalDocuments);
-  console.log("medicalDocuments type:", typeof medicalDocuments);
-  console.log("medicalDocuments is array?:", Array.isArray(medicalDocuments));
-  console.log("medicalDocuments length:", medicalDocuments?.length);
-  console.log("🔄 Is Loading Docs:", isLoadingDocs);
-  console.log("==============================================");
-
-  // Debug: Check raw API response
-  console.log("=== RAW API APPOINTMENTS DEBUG ===");
-  console.log("apiAppointments length:", apiAppointments?.length);
-  console.log("apiAppointments array:", apiAppointments);
-  console.log("Is array?", Array.isArray(apiAppointments));
-
-  if (apiAppointments && apiAppointments.length > 0) {
-    console.log("✅ First raw appointment:", apiAppointments[0]);
-    console.log("✅ First appointment._id:", apiAppointments[0]._id);
-    console.log("✅ First appointment.doctorId:", apiAppointments[0].doctorId);
-    console.log("✅ Type of doctorId:", typeof apiAppointments[0].doctorId);
-    console.log(
-      "✅ First appointment.doctorId._id:",
-      apiAppointments[0].doctorId?._id
-    );
-    console.log("✅ All raw keys:", Object.keys(apiAppointments[0]));
-  } else {
-    console.log("❌ No appointments found or array is empty");
-  }
-  console.log("==================================");
-
-  console.log("⭐⭐⭐ BEFORE MAPPING - apiAppointments:", apiAppointments);
-  console.log("⭐⭐⭐ apiAppointments.length:", apiAppointments?.length);
+  const {
+    prescriptions: apiPrescriptions,
+    isLoading: isLoadingPrescriptions,
+    error: prescriptionError,
+  } = usePatientPrescriptions();
 
   // Transform API data to match AppointmentCard component props
-  const appointments = apiAppointments.map((appointment) => {
-    console.log("⭐⭐⭐ 🔍 MAPPING appointment:", appointment);
-    console.log("⭐⭐⭐ 🔍 appointment.doctorId:", appointment.doctorId);
-    console.log(
-      "⭐⭐⭐ 🔍 appointment.doctorId?._id:",
-      appointment.doctorId?._id
-    );
-
-    const mapped = {
-      // Keep appointment ID as 'id' for reference
-      id: appointment._id,
-      // Add doctor ID for RescheduleModal to fetch availability
-      doctorId: appointment.doctorId?._id || appointment.doctorId,
-      doctor:
-        appointment.doctorId?.fullName ||
-        `Dr. ${appointment.doctorId?.firstName} ${appointment.doctorId?.lastName}`,
-      specialty: appointment.doctorId?.specialization || "N/A",
-      time: appointment.startTime,
-      reason: appointment.reasonForVisit,
-      location: appointment.doctorId?.clinicAddress || "Location not available",
-      date: new Date(appointment.appointmentDate).toLocaleDateString("en-US", {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }),
-      status: appointment.status,
-    };
-
-    // Debug: Verify doctorId is in the mapped object
-    if (!mapped.doctorId) {
-      console.error("❌❌❌ DOCTOR ID IS MISSING!", {
-        appointmentId: appointment._id,
-        rawDoctorId: appointment.doctorId,
-        extractedId: appointment.doctorId?._id,
-        mappedObject: mapped,
-      });
-    } else {
-      console.log("✅✅✅ DOCTOR ID MAPPED SUCCESSFULLY:", mapped.doctorId);
+  const appointments = useMemo(() => {
+    if (!apiAppointments || apiAppointments.length === 0) {
+      return [];
     }
 
-    console.log("✅ Mapped appointment object:", mapped);
-    console.log("✅ Mapped doctorId value:", mapped.doctorId);
-    return mapped;
-  });
+    return apiAppointments.map((appointment) => {
+      const mapped = {
+        // Keep appointment ID as 'id' for reference
+        id: appointment._id,
+        // Add doctor ID for RescheduleModal to fetch availability
+        doctorId: appointment.doctorId?._id || appointment.doctorId,
+        doctor:
+          appointment.doctorId?.fullName ||
+          `Dr. ${appointment.doctorId?.firstName} ${appointment.doctorId?.lastName}`,
+        specialty: appointment.doctorId?.specialization || "N/A",
+        time: appointment.startTime,
+        reason: appointment.reasonForVisit,
+        location:
+          appointment.doctorId?.clinicAddress || "Location not available",
+        date: new Date(appointment.appointmentDate).toLocaleDateString(
+          "en-US",
+          {
+            weekday: "short",
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          }
+        ),
+        status: appointment.status,
+      };
+
+      return mapped;
+    });
+  }, [apiAppointments]);
 
   const healthVitals = [
     {
@@ -203,120 +150,124 @@ export default function PatientDashboard() {
   };
 
   // Transform API prescriptions to match component format
-  const medications = apiPrescriptions
-    .map((prescription) => {
-      // Extract time from dosageTiming if it exists (e.g., "Twice daily at 11:34")
-      const timeMatch =
-        prescription.dosageTiming?.match(/at (\d{1,2}):(\d{2})/);
+  const medications = useMemo(() => {
+    if (!apiPrescriptions || apiPrescriptions.length === 0) {
+      return [];
+    }
 
-      // Remove time part from frequency to show only "Twice daily"
-      const frequency =
-        prescription.dosageTiming?.replace(/\s+at\s+\d{1,2}:\d{2}/, "") ||
-        "N/A";
+    return apiPrescriptions
+      .map((prescription) => {
+        // Extract time from dosageTiming if it exists (e.g., "Twice daily at 11:34")
+        const timeMatch =
+          prescription.dosageTiming?.match(/at (\d{1,2}):(\d{2})/);
 
-      const status =
-        prescription.status.charAt(0).toUpperCase() +
-        prescription.status.slice(1);
+        // Remove time part from frequency to show only "Twice daily"
+        const frequency =
+          prescription.dosageTiming?.replace(/\s+at\s+\d{1,2}:\d{2}/, "") ||
+          "N/A";
 
-      let nextDose = "Today";
+        const status =
+          prescription.status.charAt(0).toUpperCase() +
+          prescription.status.slice(1);
 
-      // Only calculate next dose for active prescriptions
-      if (status !== "Completed") {
-        if (timeMatch) {
-          const prescribedHours = parseInt(timeMatch[1], 10);
-          const prescribedMinutes = parseInt(timeMatch[2], 10);
+        let nextDose = "Today";
 
-          // Get interval based on frequency
-          const intervalHours = getIntervalHours(frequency);
+        // Only calculate next dose for active prescriptions
+        if (status !== "Completed") {
+          if (timeMatch) {
+            const prescribedHours = parseInt(timeMatch[1], 10);
+            const prescribedMinutes = parseInt(timeMatch[2], 10);
 
-          // Get current time
-          const now = new Date();
-          const currentHours = now.getHours();
-          const currentMinutes = now.getMinutes();
+            // Get interval based on frequency
+            const intervalHours = getIntervalHours(frequency);
 
-          // Calculate next dose time
-          let nextHours = prescribedHours;
-          let nextMinutes = prescribedMinutes;
+            // Get current time
+            const now = new Date();
+            const currentHours = now.getHours();
+            const currentMinutes = now.getMinutes();
 
-          // Keep adding interval until we find the next dose in the future
-          while (true) {
-            if (
-              nextHours > currentHours ||
-              (nextHours === currentHours && nextMinutes > currentMinutes)
-            ) {
-              break;
+            // Calculate next dose time
+            let nextHours = prescribedHours;
+            let nextMinutes = prescribedMinutes;
+
+            // Keep adding interval until we find the next dose in the future
+            // Safety limit: max 24 iterations (one full day)
+            let iterations = 0;
+            while (iterations < 24) {
+              if (
+                nextHours > currentHours ||
+                (nextHours === currentHours && nextMinutes > currentMinutes)
+              ) {
+                break;
+              }
+              nextHours += intervalHours;
+              if (nextHours >= 24) {
+                nextHours -= 24;
+              }
+              iterations++;
             }
-            nextHours += intervalHours;
-            if (nextHours >= 24) {
-              nextHours -= 24;
-            }
+
+            nextDose = `Today at ${formatTime12Hour(nextHours, nextMinutes)}`;
           }
-
-          nextDose = `Today at ${formatTime12Hour(nextHours, nextMinutes)}`;
+        } else {
+          // For completed prescriptions, don't show next dose
+          nextDose = "-";
         }
-      } else {
-        // For completed prescriptions, don't show next dose
-        nextDose = "-";
-      }
 
+        return {
+          id: prescription._id,
+          name: prescription.drugName,
+          dosage: prescription.concentration,
+          frequency: frequency,
+          doctor: prescription.prescribedBy?.fullName || "N/A",
+          startDate: prescription.startDate
+            ? new Date(prescription.startDate).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
+            : "N/A",
+          status: status,
+          nextDose: nextDose,
+        };
+      })
+      .sort((a, b) => {
+        // Sort by status: Active first, then others
+        if (a.status === "Active" && b.status !== "Active") return -1;
+        if (a.status !== "Active" && b.status === "Active") return 1;
+        return 0;
+      });
+  }, [apiPrescriptions]);
+
+  // Transform medical documents from API to match MedicalRecordRow props
+  const medicalRecords = useMemo(() => {
+    if (!medicalDocuments || medicalDocuments.length === 0) {
+      return [];
+    }
+
+    return medicalDocuments.map((doc) => {
       return {
-        id: prescription._id,
-        name: prescription.drugName,
-        dosage: prescription.concentration,
-        frequency: frequency,
-        doctor: prescription.prescribedBy?.fullName || "N/A",
-        startDate: prescription.startDate
-          ? new Date(prescription.startDate).toLocaleDateString("en-US", {
+        id: doc._id || doc.id,
+        date: doc.uploadedAt
+          ? new Date(doc.uploadedAt).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
               year: "numeric",
             })
-          : "N/A",
-        status: status,
-        nextDose: nextDose,
+          : new Date().toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+        type: doc.documentType || "Medical Document",
+        title: doc.title,
+        doctor: doc.doctorName || "N/A",
+        status: "Active",
+        filePath: doc.filePath,
+        fileType: doc.fileType,
       };
-    })
-    .sort((a, b) => {
-      // Sort by status: Active first, then others
-      if (a.status === "Active" && b.status !== "Active") return -1;
-      if (a.status !== "Active" && b.status === "Active") return 1;
-      return 0;
     });
-
-  // Transform medical documents from API to match MedicalRecordRow props
-  const medicalRecords = medicalDocuments.map((doc) => {
-    console.log("🔍 Processing document:", doc);
-
-    console.log("Document ID:", medicalDocuments);
-    return {
-      id: doc._id || doc.id,
-      date: doc.uploadedAt
-        ? new Date(doc.uploadedAt).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })
-        : new Date().toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          }),
-      type: doc.documentType || "Medical Document",
-      title: doc.title,
-      doctor: doc.doctorName || "N/A",
-      status: "Active",
-      filePath: doc.filePath,
-      fileType: doc.fileType,
-    };
-  });
-
-  // Debug: Log transformed records
-  console.log("==============================================");
-  console.log("📋 AFTER TRANSFORMATION - Transformed Medical Records:");
-  console.log("medicalRecords:", medicalRecords);
-  console.log("medicalRecords length:", medicalRecords.length);
-  console.log("First record:", medicalRecords[0]);
-  console.log("==============================================");
+  }, [medicalDocuments]);
 
   // Function to export medical records as CSV
   const handleExportRecords = () => {
@@ -440,6 +391,12 @@ export default function PatientDashboard() {
         {isLoadingPrescriptions ? (
           <div className="text-center py-8">
             <p className="text-gray-600">Loading prescriptions...</p>
+          </div>
+        ) : prescriptionError ? (
+          <div className="text-center py-8 bg-white border border-gray-200 rounded-lg">
+            <p className="text-red-600">
+              Unable to load prescriptions. Please try again later.
+            </p>
           </div>
         ) : medications.length === 0 ? (
           <div className="text-center py-8 bg-white border border-gray-200 rounded-lg">

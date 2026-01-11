@@ -1,6 +1,6 @@
 import axiosClient from './axiosClient';
 
-const NOTIFICATION_API_URL = import.meta.env.VITE_NOTIFICATION_API_URL || 'http://localhost:8001/api';
+const NOTIFICATION_API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001/api';
 
 // Get all notifications for the current user
 export async function getNotifications(userId, userRole) {

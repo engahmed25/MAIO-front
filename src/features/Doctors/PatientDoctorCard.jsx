@@ -172,10 +172,16 @@ export default function PatientDoctorCard({ doctor, patient }) {
         <button
           onClick={handleStartChat}
           disabled={isCreatingRoom}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed relative"
         >
           <MessageSquare className="w-4 h-4" />
           {isCreatingRoom ? "Opening..." : "Message"}
+          {/* Unread Message Badge */}
+          {doctor.unreadCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center font-bold shadow-md border-2 border-white">
+              {doctor.unreadCount > 99 ? "99+" : doctor.unreadCount}
+            </span>
+          )}
         </button>
         <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700">
           <Phone className="w-4 h-4" />

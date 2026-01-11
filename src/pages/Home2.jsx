@@ -24,6 +24,7 @@ import Search from "../ui/Search";
 import { useAuthHeader, useIsAuthenticated, useAuthUser } from "react-auth-kit";
 import UserButton from "../ui/UserButton";
 import Button from "../ui/Button";
+import { useDoctors } from "../features/Doctors/useDoctors";
 
 // Header Component
 function Header() {
@@ -242,12 +243,15 @@ const SpecialtyCard = ({ specialty }) => {
 const FindBySpecialtySection = () => {
   const navigate = useNavigate();
 
-  const specialties = [
+  // Fetch all doctors
+  const { isLoading, doctors, error } = useDoctors({});
+
+  // Define specialty configurations with icons
+  const specialtyConfigs = [
     {
       id: 1,
       name: "Cardiology",
       description: "Heart and cardiovascular care",
-      doctorCount: 25,
       icon: Heart,
       bgColor: "bg-red-50",
       iconColor: "text-red-600",
@@ -256,7 +260,6 @@ const FindBySpecialtySection = () => {
       id: 2,
       name: "Neurology",
       description: "Brain and nervous system",
-      doctorCount: 18,
       icon: Brain,
       bgColor: "bg-purple-50",
       iconColor: "text-purple-600",
@@ -265,7 +268,6 @@ const FindBySpecialtySection = () => {
       id: 3,
       name: "Pediatrics",
       description: "Children's healthcare",
-      doctorCount: 30,
       icon: Baby,
       bgColor: "bg-pink-50",
       iconColor: "text-pink-600",
@@ -274,7 +276,6 @@ const FindBySpecialtySection = () => {
       id: 4,
       name: "Ophthalmology",
       description: "Eye care and vision",
-      doctorCount: 15,
       icon: Eye,
       bgColor: "bg-blue-50",
       iconColor: "text-blue-600",
@@ -283,7 +284,6 @@ const FindBySpecialtySection = () => {
       id: 5,
       name: "Orthopedics",
       description: "Bone and joint care",
-      doctorCount: 22,
       icon: Bone,
       bgColor: "bg-orange-50",
       iconColor: "text-orange-600",
@@ -292,7 +292,6 @@ const FindBySpecialtySection = () => {
       id: 6,
       name: "General Practice",
       description: "Primary healthcare",
-      doctorCount: 40,
       icon: Stethoscope,
       bgColor: "bg-teal-50",
       iconColor: "text-teal-600",
@@ -301,7 +300,6 @@ const FindBySpecialtySection = () => {
       id: 7,
       name: "Dermatology",
       description: "Skin and hair care",
-      doctorCount: 20,
       icon: Activity,
       bgColor: "bg-green-50",
       iconColor: "text-green-600",
@@ -310,12 +308,35 @@ const FindBySpecialtySection = () => {
       id: 8,
       name: "Pharmacy",
       description: "Medication management",
-      doctorCount: 12,
       icon: Pill,
       bgColor: "bg-indigo-50",
       iconColor: "text-indigo-600",
     },
   ];
+
+  // Count doctors by specialty from real data
+  const specialtyCounts = useMemo(() => {
+    if (!doctors?.data?.doctors || !Array.isArray(doctors.data.doctors))
+      return {};
+
+    const counts = {};
+    doctors.data.doctors.forEach((doctor) => {
+      const specialization = doctor.specialization;
+      if (specialization) {
+        counts[specialization] = (counts[specialization] || 0) + 1;
+      }
+    });
+
+    return counts;
+  }, [doctors]);
+
+  // Merge specialty configs with real counts
+  const specialties = useMemo(() => {
+    return specialtyConfigs.map((config) => ({
+      ...config,
+      doctorCount: specialtyCounts[config.name] || 0,
+    }));
+  }, [specialtyCounts]);
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -356,12 +377,30 @@ const FindBySpecialtySection = () => {
           </form>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">Loading specialties...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-red-600 text-lg">
+              Failed to load doctor data. Please try again later.
+            </p>
+          </div>
+        )}
+
         {/* Specialty Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {specialties.map((specialty) => (
-            <SpecialtyCard key={specialty.id} specialty={specialty} />
-          ))}
-        </div>
+        {!isLoading && !error && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {specialties.map((specialty) => (
+              <SpecialtyCard key={specialty.id} specialty={specialty} />
+            ))}
+          </div>
+        )}
 
         {/* View All Button */}
         <div className="text-center mt-12">

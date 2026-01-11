@@ -14,6 +14,10 @@ export function useGetPatientsDocs(patientId = null) {
         queryKey: patientId ? ["patientMedicalDocuments", patientId] : ["patientMedicalRecords"],
         queryFn: queryFn,
         enabled: isAuthenticated() && (patientId ? !!patientId : true), // Only run if user is authenticated
+        retry: 1,
+        retryDelay: 1000,
+        staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
     });
 
     // Debug: Log API response

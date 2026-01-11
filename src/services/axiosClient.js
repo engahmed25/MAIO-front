@@ -7,6 +7,7 @@ const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 const axiosClient = axios.create({
     baseURL: backendURL,
+    timeout: 10000, // 10 seconds timeout
     headers: {
         'Content-Type': 'application/json',
     }

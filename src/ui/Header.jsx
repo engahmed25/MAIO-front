@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import UserButton from "./UserButton";
 import { useAuthUser, useIsAuthenticated } from "react-auth-kit";
 import { usePatientSettings } from "../features/Patients/usePatientSettings";
+import Notification from "../features/Notification/Notification";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -71,11 +72,14 @@ transition-all duration-300 hover:scale-110 hover:text-[var(--main-color)]"
         {/* Right Buttons */}
         <div className="hidden md:flex items-center gap-4">
           {isAuthenticated() ? (
-            <UserButton
-              profilePicture={`${baseUrl}/${currentUser?.profilePicture}`}
-              role={currentUser?.role}
-              userName={`${currentUser?.firstName} ${currentUser?.lastName}`}
-            />
+            <>
+              <Notification />
+              <UserButton
+                profilePicture={`${baseUrl}/${currentUser?.profilePicture}`}
+                role={currentUser?.role}
+                userName={`${currentUser?.firstName} ${currentUser?.lastName}`}
+              />
+            </>
           ) : (
             <>
               <Link to="/login">
@@ -112,11 +116,16 @@ transition-all duration-300 hover:scale-110 hover:text-[var(--main-color)]"
 
           <div className="flex flex-col gap-3 pt-3">
             {isAuthenticated() ? (
-              <UserButton
-                profilePicture={`${baseUrl}/${currentUser?.profilePicture}`}
-                role={currentUser?.role}
-                userName={`${currentUser?.firstName} ${currentUser?.lastName}`}
-              />
+              <>
+                <div className="flex items-center justify-center pb-2">
+                  <Notification />
+                </div>
+                <UserButton
+                  profilePicture={`${baseUrl}/${currentUser?.profilePicture}`}
+                  role={currentUser?.role}
+                  userName={`${currentUser?.firstName} ${currentUser?.lastName}`}
+                />
+              </>
             ) : (
               <>
                 <Link to="/login">
